@@ -74,7 +74,7 @@ function ProductPreview() {
     <div className="relative">
       <div
         aria-hidden="true"
-        className="absolute -inset-x-10 -inset-y-8 -z-10 rounded-[3rem] bg-linear-to-br from-brand-200/60 via-violet-200/40 to-transparent blur-2xl dark:from-brand-800/30 dark:via-violet-800/20"
+        className="absolute -inset-x-10 -inset-y-8 -z-10 rounded-3xl bg-linear-to-br from-glow-start via-glow-mid to-transparent blur-2xl"
       />
       <Card className="gap-5 shadow-xl">
         <CardHeader>

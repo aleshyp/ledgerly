@@ -15,7 +15,7 @@ export function LogoMark({ className }: { className?: string }) {
       <path
         d="M15 19l3-4 3 2 3-5"
         fill="none"
-        className="stroke-brand-300 dark:stroke-brand-800"
+        className="stroke-logo-accent"
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"

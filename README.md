@@ -15,7 +15,8 @@ tokens all the way to a shipped product.
 ledgerly/
 ├── packages/
 │   ├── tokens/   @ledgerly/tokens  Design tokens in TypeScript → CSS variables + Tailwind theme
-│   └── ui/       @ledgerly/ui      React component library, Storybook docs, Vitest tests
+│   ├── ui/       @ledgerly/ui      React component library, Storybook docs, Vitest tests
+│   └── eslint-plugin/              Lint rules that enforce the system (@ledgerly/eslint-plugin)
 └── apps/
     └── web/      @ledgerly/web     Next.js marketing site + product app
 ```
@@ -99,6 +100,24 @@ so theming is a token remap with no component changes. Patterns used throughout:
 | `/dashboard`    | KPIs, budgets, accounts, recent transactions, alerts          |
 | `/transactions` | Searchable, filterable table, row menus, create dialog        |
 | `/settings`     | Tabs, forms, switches, radio groups, destructive confirm      |
+
+### 5. The rules are enforced, not just written down
+
+`@ledgerly/eslint-plugin` turns the conventions into CI failures:
+
+| Rule                           | Catches                                                        |
+| ------------------------------ | -------------------------------------------------------------- |
+| `ledgerly/no-primitive-colors` | Palette steps like `bg-brand-500` that skip the semantic layer |
+| `ledgerly/no-arbitrary-values` | Off-scale values like `p-[13px]` or `bg-[#0af]`                |
+| `ledgerly/no-transition-all`   | `transition-all` instead of named properties                   |
+| `ledgerly/typography`          | Straight quotes and `...` in user-facing copy (auto-fixes `…`) |
+
+`eslint-plugin-jsx-a11y` covers both the library and the app. The app also blocks Pages Router
+imports, raw `<a>` for internal links, and number or date formatting outside `lib/format.ts`.
+
+The written guidance on accessibility (WCAG 2.2 AA), typography, UX patterns, React 19 and
+Next.js 16 lives in [`.claude/rules/`](.claude/rules), indexed from [`AGENTS.md`](AGENTS.md), so
+people and coding agents work from the same rules.
 
 ## Adding a component
 

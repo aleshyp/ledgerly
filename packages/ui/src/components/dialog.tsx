@@ -20,7 +20,7 @@ export function DialogContent({
       <DialogPrimitive.Overlay
         data-slot="dialog-overlay"
         className={cn(
-          "fixed inset-0 z-(--ld-z-overlay) bg-overlay backdrop-blur-[2px]",
+          "fixed inset-0 z-(--ld-z-overlay) bg-overlay backdrop-blur-xs",
           "data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in",
         )}
       />

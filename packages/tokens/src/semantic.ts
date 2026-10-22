@@ -90,6 +90,29 @@ export const semanticColors = {
   "chart-1": { light: "brand.600", dark: "brand.600", description: "Chart series 1" },
   "chart-2": { light: "violet.600", dark: "violet.600", description: "Chart series 2" },
 
+  // Decorative. Brand art marked aria-hidden only; never text, borders or controls.
+  "logo-accent": {
+    light: "brand.300",
+    dark: "brand.800",
+    description: "Trend line in the logo mark",
+  },
+  "glow-start": {
+    light: "brand.200/60",
+    dark: "brand.800/30",
+    description: "Hero glow, first stop",
+  },
+  "glow-mid": {
+    light: "violet.200/40",
+    dark: "violet.800/20",
+    description: "Hero glow, middle stop",
+  },
+  "spotlight-1": { light: "brand.500", dark: "brand.500", description: "Feature panel highlight" },
+  "spotlight-2": {
+    light: "violet.700",
+    dark: "violet.700",
+    description: "Feature panel highlight",
+  },
+
   // Status
   danger: { light: "red.700", dark: "red.700", description: "Destructive actions" },
   "danger-hover": { light: "red.800", dark: "red.800", description: "Destructive hover" },
