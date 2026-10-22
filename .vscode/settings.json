@@ -1,0 +1,10 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "tailwindCSS.experimental.configFile": "apps/web/app/globals.css",
+  "tailwindCSS.classFunctions": ["cn", "cva"],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}

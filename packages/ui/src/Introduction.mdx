@@ -1,0 +1,36 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Introduction" />
+
+# Ledgerly Design System
+
+The Ledgerly design system lives entirely in code. There is no Figma source of truth: tokens,
+components and documentation are versioned together in this monorepo, and the docs you are reading
+are generated from the same components the product ships.
+
+## Layers
+
+| Layer                | Package            | What it holds                                                                 |
+| -------------------- | ------------------ | ----------------------------------------------------------------------------- |
+| **Primitive tokens** | `@ledgerly/tokens` | Raw values: OKLCH color ramps, a 4px spacing grid, type scale, radii, motion  |
+| **Semantic tokens**  | `@ledgerly/tokens` | Purpose-named aliases (`primary`, `surface`, `negative`) for light and dark   |
+| **Tailwind theme**   | generated          | Utilities such as `bg-primary` and `text-foreground-muted` that map to tokens |
+| **Components**       | `@ledgerly/ui`     | Accessible React components built on Radix primitives                         |
+| **Product**          | `apps/web`         | The Ledgerly marketing site and app, built only from the layers above         |
+
+## Principles
+
+1. **Semantic first.** Components only use semantic tokens, so a theme is one remap away.
+2. **Accessible by default.** Radix handles focus and keyboard behaviour. Every text/background
+   pair is checked against WCAG AA in CI, in both themes.
+3. **Constrained on purpose.** Tailwind's default palette, radii and shadows are removed. If a
+   value isn't a token, it isn't available.
+4. **Composable.** Components expose `className`, `asChild` and `data-slot` hooks instead of
+   one-off props.
+
+## Changing a token
+
+Edit `packages/tokens/src/*.ts`. The build regenerates `tokens.css`, `theme.css` and `tokens.json`,
+the contrast tests run, and every consumer picks up the change on the next reload.
+
+Use the **Theme** toolbar button above to switch between light and dark mode.

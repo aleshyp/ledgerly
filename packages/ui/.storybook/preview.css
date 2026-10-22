@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@import "@ledgerly/tokens/theme.css";
+@import "../src/styles.css";
+
+/* Storybook's own wrappers should follow the active theme too. */
+.sb-show-main,
+.docs-story {
+  background-color: var(--color-background);
+}
