@@ -3,6 +3,10 @@
 A finance platform for small businesses, built to show a **code-first design system** working from
 tokens all the way to a shipped product.
 
+**[View the live demo →](https://ledgerly-one-ashy.vercel.app/)** · Jump straight to the
+[dashboard](https://ledgerly-one-ashy.vercel.app/dashboard) or
+[transactions](https://ledgerly-one-ashy.vercel.app/transactions).
+
 > Ledgerly is a fictional company. All names, figures and transactions are made up.
 
 ## What's inside
