@@ -16,6 +16,7 @@ export * from "./components/progress";
 export * from "./components/radio-group";
 export * from "./components/select";
 export * from "./components/separator";
+export * from "./components/skip-link";
 export * from "./components/skeleton";
 export * from "./components/spinner";
 export * from "./components/switch";

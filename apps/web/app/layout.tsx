@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { SkipLink } from "@ledgerly/ui";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body className="min-h-dvh">
+        <SkipLink />
         <Providers>{children}</Providers>
       </body>
     </html>

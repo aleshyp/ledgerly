@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { Checkbox } from "./checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "./dialog";
 import { Label } from "./label";
+import { SkipLink } from "./skip-link";
 import { Switch } from "./switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 
@@ -69,5 +70,23 @@ describe("Tabs", () => {
     await userEvent.keyboard("{ArrowRight}");
     expect(screen.getByRole("tab", { name: "Activity" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel")).toHaveTextContent("Activity panel");
+  });
+});
+
+describe("SkipLink", () => {
+  it("is the first tab stop and points at the main landmark", async () => {
+    render(
+      <>
+        <SkipLink />
+        <nav>
+          <a href="#pricing">Pricing</a>
+        </nav>
+        <main id="main-content">Content</main>
+      </>,
+    );
+    await userEvent.tab();
+    const link = screen.getByRole("link", { name: "Skip to content" });
+    expect(link).toHaveFocus();
+    expect(link).toHaveAttribute("href", "#main-content");
   });
 });

@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Page not found" };
 
 export default function NotFound() {
   return (
-    <main className="grid min-h-dvh place-items-center px-4">
+    <main id="main-content" className="grid min-h-dvh place-items-center px-4">
       <div className="grid max-w-md justify-items-center gap-4 text-center">
         <Text size="sm" weight="semibold" className="text-primary">
           404
