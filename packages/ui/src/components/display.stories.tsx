@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Progress } from "./progress";
 import { Separator } from "./separator";
 import { Skeleton } from "./skeleton";
+import { SkipLink } from "./skip-link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 import { Heading, Text } from "./typography";
 
@@ -141,6 +142,25 @@ export const Loading: Story = {
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-4 w-1/2" />
       </div>
+    </div>
+  ),
+};
+
+export const SkipToContent: Story = {
+  parameters: {
+    docs: {
+      description: { story: "Hidden until focused. Press Tab inside the canvas to reveal it." },
+    },
+  },
+  render: () => (
+    <div className="grid gap-2">
+      <SkipLink href="#story-main" />
+      <Text tone="muted" size="sm">
+        Navigation would sit here.
+      </Text>
+      <main id="story-main">
+        <Text>Main content</Text>
+      </main>
     </div>
   ),
 };

@@ -42,7 +42,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <AppNav orientation="horizontal" />
           </div>
         </header>
-        <main className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-8 sm:px-6">
+        <main
+          id="main-content"
+          className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-8 sm:px-6"
+        >
           {children}
         </main>
       </div>
