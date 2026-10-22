@@ -20,6 +20,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@ledgerly/eslint-plugin": "workspace:*",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.6.4",
     "@types/react": "19.3.0",

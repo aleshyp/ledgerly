@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Sign in" };
 
 export default function LoginPage() {
   return (
-    <main className="grid min-h-dvh lg:grid-cols-2">
+    <main id="main-content" className="grid min-h-dvh lg:grid-cols-2">
       <div className="flex flex-col px-6 py-8 sm:px-12">
         <Link href="/" aria-label="Ledgerly home" className="w-fit">
           <Logo />
@@ -23,7 +23,7 @@ export default function LoginPage() {
       <div className="relative hidden overflow-hidden bg-primary lg:block">
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,var(--color-brand-500),transparent_55%),radial-gradient(circle_at_80%_80%,var(--color-violet-700),transparent_50%)] opacity-70"
+          className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,var(--color-spotlight-1),transparent_55%),radial-gradient(circle_at_80%_80%,var(--color-spotlight-2),transparent_50%)] opacity-70"
         />
         <figure className="relative flex h-full flex-col justify-end gap-6 p-12 text-primary-foreground">
           <blockquote className="max-w-md text-2xl font-medium text-balance">
