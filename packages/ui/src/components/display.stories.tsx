@@ -80,6 +80,23 @@ export const ProgressBars: Story = {
   ),
 };
 
+/** `entrance="fill"` grows each bar from empty on first paint. Remount the story to replay it. */
+export const ProgressFillEntrance: Story = {
+  render: () => (
+    <div className="grid max-w-sm gap-4">
+      <div className="stagger-0">
+        <Progress value={32} entrance="fill" aria-label="Marketing budget" />
+      </div>
+      <div className="stagger-2">
+        <Progress value={64} tone="success" entrance="fill" aria-label="Savings goal" />
+      </div>
+      <div className="stagger-4">
+        <Progress value={88} tone="warning" entrance="fill" aria-label="Software budget" />
+      </div>
+    </div>
+  ),
+};
+
 export const TabsExample: Story = {
   name: "Tabs",
   render: () => (
