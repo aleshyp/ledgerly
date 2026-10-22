@@ -15,8 +15,13 @@ const indicatorVariants = cva(
         warning: "bg-warning",
         danger: "bg-danger",
       },
+      /** `fill` grows the bar from empty on first paint, after any inherited `stagger-*` delay. */
+      entrance: {
+        none: "",
+        fill: "motion-safe:animate-progress-fill",
+      },
     },
-    defaultVariants: { tone: "primary" },
+    defaultVariants: { tone: "primary", entrance: "none" },
   },
 );
 
@@ -25,6 +30,7 @@ export function Progress({
   value,
   max = 100,
   tone,
+  entrance,
   ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root> & VariantProps<typeof indicatorVariants>) {
   const percent = Math.min(100, Math.max(0, ((value ?? 0) / max) * 100));
@@ -38,7 +44,7 @@ export function Progress({
     >
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
-        className={indicatorVariants({ tone })}
+        className={indicatorVariants({ tone, entrance })}
         style={{ transform: `translateX(-${100 - percent}%)` }}
       />
     </ProgressPrimitive.Root>

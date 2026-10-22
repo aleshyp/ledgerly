@@ -92,6 +92,19 @@ export const Motion: Story = {
           </div>
         ))}
       </div>
+      <div className="grid gap-2">
+        <div className="font-semibold">Staggered entrance</div>
+        <div className="flex gap-4">
+          {["stagger-0", "stagger-1", "stagger-2", "stagger-3"].map((cls) => (
+            <div
+              key={cls}
+              className={`motion-safe:animate-rise-in ${cls} grid h-16 w-28 place-items-center rounded-lg border bg-surface font-mono text-xs shadow-sm`}
+            >
+              {cls}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   ),
 };

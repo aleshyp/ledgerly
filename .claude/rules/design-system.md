@@ -40,6 +40,9 @@ exist. Never edit anything in `dist/`; change the source and rebuild.
 - Motion uses `duration-150 ease-standard` (or `ease-enter` / `ease-exit`). Never use
   `transition-all` (enforced by `ledgerly/no-transition-all`). Animate `opacity` and `transform`,
   not layout properties.
+- Page entrances use `motion-safe:animate-rise-in` with `stagger-<n>` (n × `--ld-duration-stagger`)
+  for sequencing; scroll-in content uses `reveal`. Both live in `packages/ui/src/styles.css`. Write
+  `stagger-*` classes out in full so Tailwind can see them.
 - Nested radii shrink: a child's radius is never larger than its parent's.
 - Breakpoints are `sm` 40rem, `md` 48rem, `lg` 64rem, `xl` 80rem, `2xl` 96rem. Design mobile first.
 

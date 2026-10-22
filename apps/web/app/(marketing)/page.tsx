@@ -23,6 +23,7 @@ import {
   Sparkles,
   Workflow,
 } from "lucide-react";
+import { CountUpCurrency } from "@/components/count-up-currency";
 import { accounts, budgets, testimonials, transactions } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -66,12 +67,15 @@ const stats = [
   { value: "99.99%", label: "uptime" },
 ];
 
+// Spelled out so Tailwind can see each class. Rows land after the preview card (stagger-3).
+const rowStagger = ["stagger-6", "stagger-7", "stagger-8", "stagger-9"] as const;
+
 const logos = ["Fernhill", "Tidewater", "Atlas Studio", "Northwind", "Juniper & Co", "Basalt"];
 
 function ProductPreview() {
   const operating = accounts[0]!;
   return (
-    <div className="relative">
+    <div className="relative stagger-3 motion-safe:animate-rise-in">
       <div
         aria-hidden="true"
         className="absolute -inset-x-10 -inset-y-8 -z-10 rounded-3xl bg-linear-to-br from-glow-start via-glow-mid to-transparent blur-2xl"
@@ -81,7 +85,9 @@ function ProductPreview() {
           <CardDescription>
             {operating.name} ···· {operating.mask}
           </CardDescription>
-          <CardTitle className="text-3xl">{formatCurrency(operating.balance)}</CardTitle>
+          <CardTitle className="text-3xl">
+            <CountUpCurrency amount={operating.balance} delayMs={400} className="tabular" />
+          </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
           {budgets.slice(0, 2).map((budget) => (
@@ -96,14 +102,15 @@ function ProductPreview() {
                 value={(budget.spent / budget.limit) * 100}
                 aria-label={`${budget.category} budget`}
                 tone={budget.spent / budget.limit > 0.85 ? "warning" : "primary"}
+                entrance="fill"
               />
             </div>
           ))}
           <ul className="grid divide-y rounded-lg border">
-            {transactions.slice(0, 4).map((t) => (
+            {transactions.slice(0, 4).map((t, i) => (
               <li
                 key={t.id}
-                className="flex items-center justify-between gap-4 px-3 py-2.5 text-sm"
+                className={`${rowStagger[i]} flex items-center justify-between gap-4 px-3 py-2.5 text-sm motion-safe:animate-rise-in`}
               >
                 <div className="grid">
                   <span className="font-medium">{t.merchant}</span>
@@ -130,17 +137,17 @@ export default function HomePage() {
       <section className="overflow-hidden">
         <Container className="grid items-center gap-16 py-20 lg:grid-cols-[1.1fr_1fr] lg:py-28">
           <div className="grid justify-items-start gap-6">
-            <Badge variant="brand">
+            <Badge variant="brand" className="stagger-0 motion-safe:animate-rise-in">
               <Sparkles /> New: automated month-end close
             </Badge>
-            <Heading level={1} size="display">
+            <Heading level={1} size="display" className="stagger-1 motion-safe:animate-rise-in">
               The finance OS for growing businesses
             </Heading>
-            <Text size="lg" tone="muted" className="max-w-xl">
+            <Text size="lg" tone="muted" className="max-w-xl stagger-2 motion-safe:animate-rise-in">
               Ledgerly brings banking, cards, invoicing and reporting into one calm workspace — so
               you spend less time reconciling and more time running the business.
             </Text>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 stagger-3 motion-safe:animate-rise-in">
               <Button asChild size="lg">
                 <Link href="/login">
                   Open an account <ArrowRight />
@@ -150,7 +157,11 @@ export default function HomePage() {
                 <Link href="/dashboard">View live demo</Link>
               </Button>
             </div>
-            <Text size="sm" tone="muted" className="flex items-center gap-2">
+            <Text
+              size="sm"
+              tone="muted"
+              className="flex items-center gap-2 stagger-4 motion-safe:animate-rise-in"
+            >
               <BadgeCheck className="size-4 text-positive" /> No monthly fees on Starter. Cancel any
               time.
             </Text>
@@ -176,7 +187,7 @@ export default function HomePage() {
       {/* Features */}
       <section id="features" className="scroll-mt-16">
         <Container className="grid gap-12 py-24">
-          <div className="mx-auto grid max-w-2xl gap-4 text-center">
+          <div className="mx-auto grid max-w-2xl reveal gap-4 text-center">
             <Text size="sm" weight="semibold" className="text-primary">
               Everything in one place
             </Text>
@@ -189,7 +200,7 @@ export default function HomePage() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map(({ icon: Icon, title, body }) => (
-              <Card key={title} className="gap-4">
+              <Card key={title} className="reveal gap-4">
                 <CardHeader className="gap-4">
                   <span className="grid size-10 place-items-center rounded-lg bg-brand-subtle text-brand-subtle-foreground">
                     <Icon className="size-5" />
@@ -211,7 +222,7 @@ export default function HomePage() {
       <section className="bg-primary text-primary-foreground">
         <Container className="grid gap-8 py-16 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
-            <div key={stat.label} className="grid gap-1 text-center">
+            <div key={stat.label} className="grid reveal gap-1 text-center">
               <span className="text-4xl font-bold">{stat.value}</span>
               <span className="text-sm opacity-80">{stat.label}</span>
             </div>
@@ -227,7 +238,7 @@ export default function HomePage() {
           </Heading>
           <div className="grid gap-6 md:grid-cols-3">
             {testimonials.map((t) => (
-              <Card key={t.name} className="justify-between">
+              <Card key={t.name} className="reveal justify-between">
                 <CardContent>
                   <blockquote className="text-pretty">“{t.quote}”</blockquote>
                 </CardContent>
@@ -244,7 +255,7 @@ export default function HomePage() {
       {/* CTA */}
       <section>
         <Container className="pb-24">
-          <div className="grid justify-items-center gap-6 rounded-3xl border bg-brand-subtle px-6 py-16 text-center">
+          <div className="grid reveal justify-items-center gap-6 rounded-3xl border bg-brand-subtle px-6 py-16 text-center">
             <Heading level={2} size="xl" className="max-w-xl">
               Close your books in days, not weeks
             </Heading>

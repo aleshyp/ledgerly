@@ -89,6 +89,10 @@ export const duration = {
   fast: "120ms",
   base: "200ms",
   slow: "320ms",
+  /** Page-level entrances: hero content, scroll reveals, filling bars. */
+  entrance: "640ms",
+  /** Gap between items in a staggered entrance (`stagger-*`). */
+  stagger: "80ms",
 } as const;
 
 export const easing = {
@@ -112,7 +116,13 @@ export const keyframes = {
     from: { opacity: "0", transform: "translateY(4px)" },
     to: { opacity: "1", transform: "translateY(0)" },
   },
-} as const satisfies Record<string, Record<"from" | "to", Record<string, string>>>;
+  "rise-in": {
+    from: { opacity: "0", transform: "translateY(16px)" },
+    to: { opacity: "1", transform: "translateY(0)" },
+  },
+  // No `to`: the bar fills from empty to whatever its inline transform says.
+  "progress-fill": { from: { transform: "translateX(-100%)" } },
+} as const satisfies Record<string, Partial<Record<"from" | "to", Record<string, string>>>>;
 
 export const animation = {
   "fade-in": `fade-in ${duration.base} ${easing.enter}`,
@@ -120,6 +130,11 @@ export const animation = {
   "scale-in": `scale-in ${duration.base} ${easing.enter}`,
   "scale-out": `scale-out ${duration.fast} ${easing.exit}`,
   "slide-up": `slide-up ${duration.base} ${easing.enter}`,
+  // The delay lives in the shorthand so `stagger-*` (which sets `--ld-delay`) can't be reset by
+  // class order. `both` keeps a staggered item hidden until its delay runs out.
+  "rise-in": `rise-in ${duration.entrance} ${easing.enter} var(--ld-delay, 0s) both`,
+  // Waits for its container's stagger delay (`--ld-delay`, inherited) plus a beat.
+  "progress-fill": `progress-fill ${duration.entrance} ${easing.standard} calc(var(--ld-delay, 0s) + ${duration.slow}) both`,
 } as const satisfies Record<string, string>;
 
 export const zIndex = {
