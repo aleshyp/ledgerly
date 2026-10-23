@@ -1,22 +1,34 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Checkbox, Field, Heading, Input, Label, Separator, Text } from "@ledgerly/ui";
+import { isEmail } from "@/lib/validation";
+
+type Errors = Partial<Record<"email" | "password", string>>;
 
 export function LoginForm() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string>();
+  const [errors, setErrors] = useState<Errors>({});
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const email = String(new FormData(event.currentTarget).get("email") ?? "");
-    if (!email.includes("@")) {
-      setError("Enter a valid email address.");
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") ?? "").trim();
+    const password = String(form.get("password") ?? "");
+
+    const next: Errors = {};
+    if (!isEmail(email)) next.email = "Enter a valid email address, like you@company.com.";
+    if (!password) next.password = "Enter your password.";
+    setErrors(next);
+
+    const firstInvalid = (["email", "password"] as const).find((k) => next[k]);
+    if (firstInvalid) {
+      event.currentTarget.querySelector<HTMLInputElement>(`[name="${firstInvalid}"]`)?.focus();
       return;
     }
-    setError(undefined);
     setPending(true);
     // Simulate a network round-trip before entering the demo app.
     setTimeout(() => router.push("/dashboard"), 700);
@@ -34,16 +46,17 @@ export function LoginForm() {
       </div>
 
       <form onSubmit={onSubmit} noValidate className="grid gap-5">
-        <Field label="Work email" error={error}>
+        <Field label="Work email" error={errors.email}>
           <Input
             name="email"
             type="email"
             autoComplete="email"
+            spellCheck={false}
             placeholder="you@company.com"
             defaultValue="avery@northwindcoffee.co"
           />
         </Field>
-        <Field label="Password">
+        <Field label="Password" error={errors.password}>
           <Input
             name="password"
             type="password"
@@ -56,8 +69,8 @@ export function LoginForm() {
             <Checkbox id="remember" defaultChecked />
             <Label htmlFor="remember">Remember me</Label>
           </div>
-          <Button variant="link" size="sm" type="button">
-            Forgot password?
+          <Button asChild variant="link" size="sm">
+            <Link href="/forgot-password">Forgot password?</Link>
           </Button>
         </div>
         <Button type="submit" size="lg" loading={pending}>
@@ -72,9 +85,16 @@ export function LoginForm() {
         </Text>
         <Separator className="flex-1" />
       </div>
-      <Button variant="outline" size="lg" type="button" onClick={() => router.push("/dashboard")}>
-        Continue with SSO
+      <Button asChild variant="outline" size="lg">
+        <Link href="/dashboard">Continue with SSO</Link>
       </Button>
+
+      <Text size="sm" tone="muted" className="text-center">
+        New to Ledgerly?{" "}
+        <Button asChild variant="link" size="sm">
+          <Link href="/signup">Create an account</Link>
+        </Button>
+      </Text>
     </>
   );
 }

@@ -21,7 +21,13 @@ import {
   cn,
 } from "@ledgerly/ui";
 import type { CashFlowMonth } from "@/lib/data";
-import { formatCompactCurrency, formatCurrency } from "@/lib/format";
+import {
+  formatCompactCurrency,
+  formatCurrency,
+  formatMonth,
+  formatMonthLong,
+  formatMonthYear,
+} from "@/lib/format";
 
 /* Mark specs from the data-viz guidelines: columns <= 24px wide with a 4px rounded
  * data-end, a 2px surface gap between neighbours, hairline solid gridlines. */
@@ -36,6 +42,10 @@ const series = [
   { key: "moneyIn", label: "Money in", fill: "fill-chart-1", swatch: "bg-chart-1" },
   { key: "moneyOut", label: "Money out", fill: "fill-chart-2", swatch: "bg-chart-2" },
 ] as const;
+
+/** Money direction is shown by sign as well, so color is never the only cue. */
+const moneyTone = (amount: number) =>
+  amount > 0 ? "text-positive" : amount < 0 ? "text-negative" : "";
 
 function niceStep(max: number, count = 4) {
   const raw = max / count;
@@ -95,7 +105,7 @@ function ColumnChart({ data }: { data: CashFlowMonth[] }) {
         width={width}
         height={PLOT_HEIGHT + MARGIN.top + MARGIN.bottom}
         role="group"
-        aria-label="Monthly money in and money out, May to October"
+        aria-label={`Monthly money in and money out, ${formatMonthLong(data[0]!.month)} to ${formatMonthLong(data.at(-1)!.month)}`}
         className="block"
         onPointerLeave={() => setActive(null)}
       >
@@ -163,7 +173,7 @@ function ColumnChart({ data }: { data: CashFlowMonth[] }) {
                   active === i ? "fill-foreground font-medium" : "fill-foreground-muted",
                 )}
               >
-                {d.month}
+                {formatMonth(d.month)}
               </text>
               {/* Hit target: the whole month band, larger than the marks. */}
               <rect
@@ -177,7 +187,7 @@ function ColumnChart({ data }: { data: CashFlowMonth[] }) {
                 fill="transparent"
                 tabIndex={0}
                 role="img"
-                aria-label={`${d.month}: money in ${formatCurrency(d.moneyIn)}, money out ${formatCurrency(d.moneyOut)}`}
+                aria-label={`${formatMonthYear(d.month)}: money in ${formatCurrency(d.moneyIn)}, money out ${formatCurrency(d.moneyOut)}`}
                 className="outline-none"
                 onPointerEnter={() => {
                   setFocused(false);
@@ -210,7 +220,9 @@ function ColumnChart({ data }: { data: CashFlowMonth[] }) {
           className="pointer-events-none absolute top-0 z-(--ld-z-tooltip) grid w-44 -translate-x-1/2 animate-fade-in gap-2 rounded-lg border bg-surface-raised p-3 text-xs shadow-lg"
           style={{ left: tooltipX }}
         >
-          <div className="font-medium text-foreground-muted">{activeMonth.month} 2026</div>
+          <div className="font-medium text-foreground-muted">
+            {formatMonthYear(activeMonth.month)}
+          </div>
           {series.map((s) => (
             <div key={s.key} className="flex items-center gap-2">
               <span className={cn("h-0.5 w-3 rounded-full", s.swatch)} />
@@ -222,7 +234,12 @@ function ColumnChart({ data }: { data: CashFlowMonth[] }) {
           ))}
           <div className="flex items-center gap-2 border-t pt-2">
             <span className="w-3" />
-            <span className="font-semibold text-positive tabular">
+            <span
+              className={cn(
+                "font-semibold tabular",
+                moneyTone(activeMonth.moneyIn - activeMonth.moneyOut),
+              )}
+            >
               {formatCurrency(activeMonth.moneyIn - activeMonth.moneyOut, { signed: true })}
             </span>
             <span className="ml-auto text-foreground-muted">Net</span>
@@ -247,10 +264,12 @@ function CashFlowTable({ data }: { data: CashFlowMonth[] }) {
       <TableBody>
         {data.map((d) => (
           <TableRow key={d.month}>
-            <TableCell className="font-medium">{d.month} 2026</TableCell>
+            <TableCell className="font-medium">{formatMonthYear(d.month)}</TableCell>
             <TableCell className="text-right tabular">{formatCurrency(d.moneyIn)}</TableCell>
             <TableCell className="text-right tabular">{formatCurrency(d.moneyOut)}</TableCell>
-            <TableCell className="text-right font-medium text-positive tabular">
+            <TableCell
+              className={cn("text-right font-medium tabular", moneyTone(d.moneyIn - d.moneyOut))}
+            >
               {formatCurrency(d.moneyIn - d.moneyOut, { signed: true })}
             </TableCell>
           </TableRow>
@@ -267,8 +286,8 @@ export function CashFlowCard({ data }: { data: CashFlowMonth[] }) {
     <Card>
       <Tabs defaultValue="chart" className="gap-6">
         <CardHeader>
-          <CardTitle>Cash flow</CardTitle>
-          <CardDescription>Money in vs. money out, last 6 months</CardDescription>
+          <CardTitle level={2}>Cash flow</CardTitle>
+          <CardDescription>Money in vs. money out, last {data.length} months</CardDescription>
           <CardAction>
             <TabsList className="h-8">
               <TabsTrigger value="chart" className="px-2.5 text-xs">
@@ -291,7 +310,9 @@ export function CashFlowCard({ data }: { data: CashFlowMonth[] }) {
                   {latest && (
                     <span className="font-medium">
                       {formatCompactCurrency(latest[s.key])}{" "}
-                      <span className="font-normal text-foreground-muted">in {latest.month}</span>
+                      <span className="font-normal text-foreground-muted">
+                        in {formatMonth(latest.month)}
+                      </span>
                     </span>
                   )}
                 </li>

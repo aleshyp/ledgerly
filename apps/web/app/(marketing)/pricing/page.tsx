@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Container, Heading, Text } from "@ledgerly/ui";
+import Link from "next/link";
+import { Button, Container, Heading, Text } from "@ledgerly/ui";
 import { PricingPlans } from "./pricing-plans";
 
 export const metadata: Metadata = { title: "Pricing" };
@@ -16,6 +17,7 @@ const faqs = [
   {
     q: "Do you offer discounts for nonprofits?",
     a: "Registered nonprofits get 50% off Growth and Scale. Contact sales with your documentation.",
+    link: { href: "/contact?topic=sales", label: "Contact sales" },
   },
   {
     q: "What happens to my data if I cancel?",
@@ -45,7 +47,14 @@ export default function PricingPage() {
           {faqs.map((faq) => (
             <div key={faq.q} className="grid content-start gap-2">
               <dt className="font-semibold">{faq.q}</dt>
-              <dd className="text-sm text-foreground-muted">{faq.a}</dd>
+              <dd className="grid justify-items-start gap-2 text-sm text-foreground-muted">
+                {faq.a}
+                {faq.link && (
+                  <Button asChild variant="link" size="sm">
+                    <Link href={faq.link.href}>{faq.link.label}</Link>
+                  </Button>
+                )}
+              </dd>
             </div>
           ))}
         </dl>

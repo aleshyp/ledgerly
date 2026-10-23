@@ -1,4 +1,5 @@
 import type * as React from "react";
+import { Slot } from "radix-ui";
 import { cn } from "../lib/cn";
 
 export function Card({ className, ...props }: React.ComponentProps<"div">) {
@@ -27,9 +28,17 @@ export function CardHeader({ className, ...props }: React.ComponentProps<"div">)
   );
 }
 
-export function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+export type CardTitleProps = React.ComponentProps<"h3"> & {
+  /** Document outline level. Pick it by structure; the visual size stays the same. */
+  level?: 2 | 3 | 4 | 5 | 6;
+  /** Render the child element instead, for a title that isn't a heading (a balance, a name). */
+  asChild?: boolean;
+};
+
+export function CardTitle({ level = 3, asChild = false, className, ...props }: CardTitleProps) {
+  const Comp = asChild ? Slot.Root : (`h${level}` as const);
   return (
-    <div
+    <Comp
       data-slot="card-title"
       className={cn("text-base leading-tight font-semibold", className)}
       {...props}

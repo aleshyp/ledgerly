@@ -48,8 +48,8 @@ export function scale({ hue, chroma }: { hue: number; chroma: number }): Scale {
   ) as Scale;
 }
 
-/** WCAG 2.x relative luminance of an `oklch(L C H)` string. */
-export function relativeLuminance(color: string): number {
+/** Linear sRGB channels (0–1, clamped to gamut) of an `oklch(L C H)` string. */
+function linearSrgb(color: string): [number, number, number] {
   const match = /^oklch\(([\d.]+) ([\d.]+) ([\d.]+)\)$/.exec(color);
   if (!match) throw new Error(`Unsupported color format: ${color}`);
   const [L, C, H] = match.slice(1).map(Number) as [number, number, number];
@@ -68,7 +68,25 @@ export function relativeLuminance(color: string): number {
   const g = clamp(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s);
   const bl = clamp(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s);
 
-  return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+  return [r, g, bl];
+}
+
+/** WCAG 2.x relative luminance of an `oklch(L C H)` string. */
+export function relativeLuminance(color: string): number {
+  const [r, g, b] = linearSrgb(color);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** `#rrggbb` for an `oklch(L C H)` string, for renderers without OKLCH (OG images, email). */
+export function toHex(color: string): string {
+  const encode = (v: number) => (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
+  return `#${linearSrgb(color)
+    .map((v) =>
+      Math.round(encode(v) * 255)
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
 }
 
 export function contrastRatio(foreground: string, background: string): number {

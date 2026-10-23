@@ -51,27 +51,8 @@ export const accounts: Account[] = [
   },
 ];
 
-export type Kpi = {
-  label: string;
-  value: number;
-  change: number;
-  /** Whether a rising number is good news (revenue) or bad news (spend). */
-  goodWhen: "up" | "down";
-  hint: string;
-};
-
-export const kpis: Kpi[] = [
-  {
-    label: "Cash on hand",
-    value: 256420.18,
-    change: 8.2,
-    goodWhen: "up",
-    hint: "Across all accounts",
-  },
-  { label: "Revenue (Oct)", value: 128940.0, change: 12.4, goodWhen: "up", hint: "vs. September" },
-  { label: "Spend (Oct)", value: 71215.62, change: 3.1, goodWhen: "down", hint: "vs. September" },
-  { label: "Runway", value: 18, change: 2, goodWhen: "up", hint: "Months at current burn" },
-];
+/** The demo is frozen on this day, so dates stay believable and renders stay pure. */
+export const demoToday = "2026-10-22";
 
 export type TransactionStatus = "completed" | "pending" | "failed";
 
@@ -83,6 +64,8 @@ export type Transaction = {
   account: string;
   amount: number;
   status: TransactionStatus;
+  memo?: string;
+  receipt?: string;
 };
 
 export const transactions: Transaction[] = [
@@ -138,7 +121,7 @@ export const transactions: Transaction[] = [
     category: "Infrastructure",
     account: "Company card",
     amount: -1218.4,
-    status: "failed",
+    status: "completed",
   },
   {
     id: "txn_07",
@@ -254,12 +237,20 @@ export const categories = Array.from(new Set(transactions.map((t) => t.category)
 
 export type Budget = { category: string; spent: number; limit: number };
 
-export const budgets: Budget[] = [
-  { category: "Software", spent: 421, limit: 600 },
-  { category: "Travel", spent: 723.1, limit: 1500 },
-  { category: "Inventory", spent: 9965.25, limit: 11000 },
-  { category: "Infrastructure", spent: 1218.4, limit: 1200 },
-];
+/** Spend that counts against a budget: money out that went through or is about to. */
+export function categorySpend(list: Transaction[], category: string) {
+  return list
+    .filter((t) => t.category === category && t.amount < 0 && t.status !== "failed")
+    .reduce((sum, t) => sum - t.amount, 0);
+}
+
+const budgetLimits = { Software: 600, Travel: 1500, Inventory: 11000, Infrastructure: 1200 };
+
+export const budgets: Budget[] = Object.entries(budgetLimits).map(([category, limit]) => ({
+  category,
+  limit,
+  spent: categorySpend(transactions, category),
+}));
 
 export type Plan = {
   name: string;
@@ -269,6 +260,7 @@ export type Plan = {
   features: string[];
   featured?: boolean;
   cta: string;
+  href: string;
 };
 
 export const plans: Plan[] = [
@@ -278,6 +270,7 @@ export const plans: Plan[] = [
     monthly: 0,
     annual: 0,
     cta: "Start for free",
+    href: "/signup?plan=starter",
     features: [
       "1 business account",
       "2 team members",
@@ -292,6 +285,7 @@ export const plans: Plan[] = [
     annual: 32,
     featured: true,
     cta: "Start 14-day trial",
+    href: "/signup?plan=growth",
     features: [
       "Unlimited accounts",
       "10 team members",
@@ -307,6 +301,7 @@ export const plans: Plan[] = [
     monthly: 129,
     annual: 108,
     cta: "Talk to sales",
+    href: "/contact?topic=sales",
     features: [
       "Everything in Growth",
       "Unlimited team members",
@@ -338,14 +333,70 @@ export const testimonials = [
   },
 ];
 
-export type CashFlowMonth = { month: string; moneyIn: number; moneyOut: number };
+export type CashFlowMonth = {
+  /** ISO year-month, e.g. `2026-10`. Format it with `formatMonth`. */
+  month: string;
+  moneyIn: number;
+  moneyOut: number;
+};
 
-/** Last six months. October matches the KPI tiles. */
+/** Last six months. The KPI tiles are derived from the last two. */
 export const cashFlow: CashFlowMonth[] = [
-  { month: "May", moneyIn: 96420, moneyOut: 64180 },
-  { month: "Jun", moneyIn: 101850, moneyOut: 66940 },
-  { month: "Jul", moneyIn: 98230, moneyOut: 72510 },
-  { month: "Aug", moneyIn: 108760, moneyOut: 67320 },
-  { month: "Sep", moneyIn: 114715, moneyOut: 69074 },
-  { month: "Oct", moneyIn: 128940, moneyOut: 71215.62 },
+  { month: "2026-05", moneyIn: 96420, moneyOut: 64180 },
+  { month: "2026-06", moneyIn: 101850, moneyOut: 66940 },
+  { month: "2026-07", moneyIn: 98230, moneyOut: 72510 },
+  { month: "2026-08", moneyIn: 108760, moneyOut: 67320 },
+  { month: "2026-09", moneyIn: 114715, moneyOut: 69074 },
+  { month: "2026-10", moneyIn: 128940, moneyOut: 71215.62 },
+];
+
+export type Kpi = {
+  label: string;
+  value: number;
+  /** Percent change against the comparison period in `hint`. */
+  change: number;
+  /** Whether a rising number is good news (revenue) or bad news (spend). */
+  goodWhen: "up" | "down";
+  hint: string;
+};
+
+const percentChange = (now: number, before: number) =>
+  Math.round(((now - before) / Math.abs(before)) * 1000) / 10;
+
+const thisMonth = cashFlow.at(-1)!;
+const lastMonth = cashFlow.at(-2)!;
+
+export const kpis: Kpi[] = [
+  {
+    label: "Cash on hand",
+    // Card debt isn't cash, so the credit account is left out.
+    value: accounts.filter((a) => a.type !== "credit").reduce((sum, a) => sum + a.balance, 0),
+    change: 8.2,
+    goodWhen: "up",
+    hint: "vs. last month",
+  },
+  {
+    label: "Money in",
+    value: thisMonth.moneyIn,
+    change: percentChange(thisMonth.moneyIn, lastMonth.moneyIn),
+    goodWhen: "up",
+    hint: "vs. last month",
+  },
+  {
+    label: "Money out",
+    value: thisMonth.moneyOut,
+    change: percentChange(thisMonth.moneyOut, lastMonth.moneyOut),
+    goodWhen: "down",
+    hint: "vs. last month",
+  },
+  {
+    label: "Net cash flow",
+    value: thisMonth.moneyIn - thisMonth.moneyOut,
+    change: percentChange(
+      thisMonth.moneyIn - thisMonth.moneyOut,
+      lastMonth.moneyIn - lastMonth.moneyOut,
+    ),
+    goodWhen: "up",
+    hint: "vs. last month",
+  },
 ];

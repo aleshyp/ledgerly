@@ -5,7 +5,8 @@ tokens all the way to a shipped product.
 
 **[View the live demo →](https://ledgerly-one-ashy.vercel.app/)** · Jump straight to the
 [dashboard](https://ledgerly-one-ashy.vercel.app/dashboard) or
-[transactions](https://ledgerly-one-ashy.vercel.app/transactions).
+[transactions](https://ledgerly-one-ashy.vercel.app/transactions). Browse the components in the
+**[Storybook docs →](https://aleshyp.github.io/ledgerly/)**
 
 > Ledgerly is a fictional company. All names, figures and transactions are made up.
 
@@ -30,6 +31,7 @@ ledgerly/
 | Docs       | Storybook 10 with autodocs and the a11y addon                         |
 | App        | Next.js 16 App Router, React Server Components, next-themes           |
 | Quality    | TypeScript strict, ESLint, Prettier, Vitest + Testing Library, CI     |
+| End to end | Playwright with axe-core, in light, dark and mobile                   |
 
 ## Getting started
 
@@ -45,7 +47,8 @@ Other scripts, all run through Turborepo:
 
 ```bash
 pnpm build        # tokens → Storybook static site → Next.js production build
-pnpm test         # token contrast tests + component tests
+pnpm test         # token contrast, component, lint-rule and data/format tests
+pnpm --filter @ledgerly/web e2e   # after `pnpm build`: Playwright flows + axe on every route
 pnpm lint
 pnpm typecheck
 pnpm format
@@ -92,14 +95,20 @@ so theming is a token remap with no component changes. Patterns used throughout:
 
 `apps/web` imports tokens and components and adds no new colors or one-off styles. Routes:
 
-| Route           | Shows                                                         |
-| --------------- | ------------------------------------------------------------- |
-| `/`             | Marketing page: hero, product preview, features, testimonials |
-| `/pricing`      | Plan cards with a monthly/annual toggle, FAQ                  |
-| `/login`        | Sign-in form with validation (any credentials work)           |
-| `/dashboard`    | KPIs, budgets, accounts, recent transactions, alerts          |
-| `/transactions` | Searchable, filterable table, row menus, create dialog        |
-| `/settings`     | Tabs, forms, switches, radio groups, destructive confirm      |
+| Route              | Shows                                                              |
+| ------------------ | ------------------------------------------------------------------ |
+| `/`                | Marketing page: hero, product preview, features, testimonials      |
+| `/pricing`         | Plan cards with an annual billing switch, FAQ                      |
+| `/contact`         | Sales and support form with inline validation                      |
+| `/signup`          | Account creation, with the chosen plan from pricing                |
+| `/login`           | Sign-in form with validation (any credentials work)                |
+| `/forgot-password` | Reset request with a confirmation state                            |
+| `/dashboard`       | KPIs, cash-flow chart, budgets, accounts, recent transactions      |
+| `/transactions`    | Filters in the URL, CSV export, row actions with undo, create form |
+| `/settings`        | Tabs in the URL, profile photo, auto-saving preferences, confirm   |
+
+Transactions recorded, edited or deleted in the app shell live in memory and show up on every
+page until you refresh. Feedback goes through the library’s `Toaster`.
 
 ### 5. The rules are enforced, not just written down
 
@@ -131,4 +140,5 @@ people and coding agents work from the same rules.
 - **Web app:** import the repo into Vercel and set the root directory to `apps/web`. Vercel detects
   Turborepo and builds the workspace dependencies.
 - **Storybook:** `pnpm --filter @ledgerly/ui build` outputs a static site to
-  `packages/ui/storybook-static`. Host it on Vercel, Netlify, GitHub Pages or Chromatic.
+  `packages/ui/storybook-static`. `.github/workflows/storybook.yml` publishes it to GitHub Pages on
+  every push to `main` (set Settings → Pages → Source to “GitHub Actions” once).

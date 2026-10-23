@@ -46,3 +46,28 @@ export const Default: Story = {
     </Card>
   ),
 };
+
+/**
+ * `CardTitle` is a heading. Set `level` to fit the page outline (2 under a page’s h1, 3 under a
+ * section’s h2), or use `asChild` when the title is a value rather than a heading.
+ */
+export const HeadingLevels: Story = {
+  render: () => (
+    <div className="grid w-96 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle level={2}>Budgets</CardTitle>
+          <CardDescription>Level 2, directly under the page heading</CardDescription>
+        </CardHeader>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardDescription>Operating ···· 4821</CardDescription>
+          <CardTitle asChild className="text-3xl">
+            <p>$84,320.18</p>
+          </CardTitle>
+        </CardHeader>
+      </Card>
+    </div>
+  ),
+};

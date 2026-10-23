@@ -31,7 +31,7 @@ const features = [
   {
     icon: Landmark,
     title: "Business accounts",
-    body: "Open operating, payroll and reserve accounts in minutes. FDIC-style protection, zero monthly fees.",
+    body: "Open operating, payroll and reserve accounts in minutes, with no monthly fees on Starter.",
   },
   {
     icon: CreditCard,
@@ -85,8 +85,10 @@ function ProductPreview() {
           <CardDescription>
             {operating.name} ···· {operating.mask}
           </CardDescription>
-          <CardTitle className="text-3xl">
-            <CountUpCurrency amount={operating.balance} delayMs={400} className="tabular" />
+          <CardTitle asChild className="text-3xl">
+            <p>
+              <CountUpCurrency amount={operating.balance} delayMs={400} className="tabular" />
+            </p>
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -149,7 +151,7 @@ export default function HomePage() {
             </Text>
             <div className="flex flex-wrap gap-3 stagger-3 motion-safe:animate-rise-in">
               <Button asChild size="lg">
-                <Link href="/login">
+                <Link href="/signup">
                   Open an account <ArrowRight />
                 </Link>
               </Button>
@@ -174,10 +176,7 @@ export default function HomePage() {
       <section aria-label="Trusted by" className="border-y bg-muted/50">
         <Container className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 py-8">
           {logos.map((logo) => (
-            <span
-              key={logo}
-              className="text-lg font-semibold tracking-tight text-foreground-subtle"
-            >
+            <span key={logo} className="text-lg font-semibold tracking-tight text-foreground-muted">
               {logo}
             </span>
           ))}
@@ -192,7 +191,7 @@ export default function HomePage() {
               Everything in one place
             </Text>
             <Heading level={2} size="xl">
-              Replace five tools with one ledger
+              Replace your finance stack with one ledger
             </Heading>
             <Text tone="muted">
               Ledgerly connects the money coming in, the money going out and the reports in between.
@@ -224,7 +223,7 @@ export default function HomePage() {
           {stats.map((stat) => (
             <div key={stat.label} className="grid reveal gap-1 text-center">
               <span className="text-4xl font-bold">{stat.value}</span>
-              <span className="text-sm opacity-80">{stat.label}</span>
+              <span className="text-sm">{stat.label}</span>
             </div>
           ))}
         </Container>
@@ -238,14 +237,20 @@ export default function HomePage() {
           </Heading>
           <div className="grid gap-6 md:grid-cols-3">
             {testimonials.map((t) => (
-              <Card key={t.name} className="reveal justify-between">
-                <CardContent>
-                  <blockquote className="text-pretty">“{t.quote}”</blockquote>
+              <Card key={t.name} className="reveal">
+                <CardContent className="flex-1">
+                  <figure className="grid h-full content-between gap-6">
+                    <blockquote className="text-pretty">“{t.quote}”</blockquote>
+                    <figcaption className="grid gap-0.5">
+                      <Text as="span" size="sm" weight="semibold">
+                        {t.name}
+                      </Text>
+                      <Text as="span" size="sm" tone="muted">
+                        {t.title}
+                      </Text>
+                    </figcaption>
+                  </figure>
                 </CardContent>
-                <CardHeader className="gap-0.5">
-                  <CardTitle className="text-sm">{t.name}</CardTitle>
-                  <CardDescription>{t.title}</CardDescription>
-                </CardHeader>
               </Card>
             ))}
           </div>
@@ -271,7 +276,7 @@ export default function HomePage() {
             </Text>
             <div className="flex flex-wrap justify-center gap-3">
               <Button asChild size="lg">
-                <Link href="/login">Get started free</Link>
+                <Link href="/signup">Get started free</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <Link href="/pricing">Compare plans</Link>

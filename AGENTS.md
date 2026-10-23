@@ -50,6 +50,7 @@ Run these before calling work finished. CI runs the same checks:
 ```bash
 pnpm --filter @ledgerly/tokens build   # Prettier's Tailwind plugin reads the generated theme
 pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build
+pnpm --filter @ledgerly/web e2e        # Playwright + axe on the build (once: playwright install chromium)
 ```
 
 If a rule blocks something legitimate, fix the rule (with tests) or disable it on that one line

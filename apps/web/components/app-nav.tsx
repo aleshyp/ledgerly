@@ -45,7 +45,7 @@ export function AppNav({ orientation = "vertical" }: { orientation?: "vertical" 
         comingSoon.map(({ label, icon: Icon }) => (
           <span
             key={label}
-            className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground-subtle"
+            className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground-muted"
           >
             <Icon className="size-4" />
             {label}

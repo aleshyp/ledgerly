@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { SkipLink } from "@ledgerly/ui";
+import { siteDescription, siteName, siteUrl, tagline } from "@/lib/site";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -8,12 +9,22 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Ledgerly — The finance OS for growing businesses",
-    template: "%s · Ledgerly",
+    default: `${siteName} — ${tagline}`,
+    template: `%s · ${siteName}`,
   },
-  description:
-    "Ledgerly brings banking, spend, invoicing and reporting into one calm workspace. A fictional product built as a design-system demo.",
+  description: siteDescription,
+  applicationName: siteName,
+  openGraph: {
+    type: "website",
+    siteName,
+    url: "/",
+    title: `${siteName} — ${tagline}`,
+    description: siteDescription,
+    locale: "en_US",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
