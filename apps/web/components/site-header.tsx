@@ -13,8 +13,8 @@ const links = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-(--ld-z-sticky) border-b bg-background/80 backdrop-blur-md">
-      <Container className="flex h-16 items-center gap-8">
+    <header className="sticky top-0 z-(--ld-z-sticky) border-b bg-background/80 backdrop-blur-md short:static">
+      <Container className="flex h-16 items-center gap-4 md:gap-8">
         <Link
           href="/"
           aria-label="Ledgerly home"
@@ -34,7 +34,8 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <ThemeToggle />
+          {/* Below `sm` there's no room; the mobile menu carries the theme switch instead. */}
+          <ThemeToggle className="hidden sm:inline-flex" />
           <Button asChild variant="ghost" className="hidden md:inline-flex">
             <Link href="/login">Sign in</Link>
           </Button>

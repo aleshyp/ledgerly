@@ -47,9 +47,12 @@ export function RecentTransactions({ count = 6 }: { count?: number }) {
           <TableBody>
             {transactions.slice(0, count).map((t) => (
               <TableRow key={t.id}>
-                <TableCell>
+                <TableCell className="whitespace-normal">
                   <div className="font-medium">{t.merchant}</div>
-                  <div className="text-xs text-foreground-muted">{t.category}</div>
+                  <div className="text-xs text-foreground-muted">
+                    {t.category}
+                    <span className="sm:hidden"> · {formatDate(t.date)}</span>
+                  </div>
                 </TableCell>
                 <TableCell className="hidden text-foreground-muted sm:table-cell">
                   {formatDate(t.date)}
@@ -61,6 +64,10 @@ export function RecentTransactions({ count = 6 }: { count?: number }) {
                   className={`text-right font-medium tabular ${t.amount > 0 ? "text-positive" : ""}`}
                 >
                   {formatCurrency(t.amount, { signed: true })}
+                  {/* Status has its own column from `md`; below that it sits under the amount. */}
+                  <div className="mt-1 md:hidden">
+                    <StatusBadge status={t.status} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

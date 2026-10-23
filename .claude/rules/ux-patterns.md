@@ -54,6 +54,4 @@ paths:
 ## Layout
 
 - Use flex and grid with intrinsic sizing. Don't measure layout in JavaScript.
-- Check layouts at 320px, a laptop width and an ultra-wide width. Tables scroll horizontally inside
-  their container, never the page.
-- Respect safe-area insets for anything fixed to the viewport edges.
+- Widths, overflow, touch and viewport height are covered in `responsive.md`.

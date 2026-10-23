@@ -4,9 +4,12 @@ import type * as React from "react";
 import { cn } from "../lib/cn";
 import { useFieldControl } from "./field";
 
-/** Shared by Input, Textarea and SelectTrigger so every control looks and focuses the same. */
+/**
+ * Shared by Input, Textarea and SelectTrigger so every control looks and focuses the same.
+ * Text is 16px on touch screens because iOS Safari zooms the page into smaller focused fields.
+ */
 export const controlStyles = [
-  "w-full min-w-0 rounded-md border border-input bg-surface text-sm text-foreground shadow-xs",
+  "w-full min-w-0 rounded-md border border-input bg-surface text-base text-foreground shadow-xs pointer-fine:text-sm",
   "transition-[color,border-color,box-shadow] duration-150 outline-none",
   "placeholder:text-foreground-subtle",
   "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25",

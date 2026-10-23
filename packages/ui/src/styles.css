@@ -53,6 +53,12 @@
   }
 }
 
+/*
+ * Short viewports: a landscape phone, or a laptop at high zoom. Sticky chrome turns `short:static`
+ * here so it doesn't eat the little height there is.
+ */
+@custom-variant short (@media (max-height: 30rem));
+
 @utility tabular {
   font-variant-numeric: tabular-nums;
 }
@@ -75,6 +81,53 @@
  */
 @utility stagger-* {
   --ld-delay: calc(var(--ld-duration-stagger) * --value(integer));
+}
+
+/*
+ * Fades the edges of a horizontal scroller that has more content off that side, so a nav row or
+ * tab list that doesn't fit shows there's more. Browsers without scroll-driven animations, and
+ * scrollers that fit, get no fade.
+ */
+@property --ld-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --ld-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes scroll-fade-x {
+  0% {
+    --ld-fade-start: 0px;
+    --ld-fade-end: 2rem;
+  }
+  10%,
+  90% {
+    --ld-fade-start: 2rem;
+    --ld-fade-end: 2rem;
+  }
+  100% {
+    --ld-fade-start: 2rem;
+    --ld-fade-end: 0px;
+  }
+}
+
+@utility scroll-fade-x {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black var(--ld-fade-start),
+    black calc(100% - var(--ld-fade-end)),
+    transparent
+  );
+  @supports (animation-timeline: scroll(x self)) {
+    animation: scroll-fade-x linear both;
+    animation-timeline: scroll(x self);
+  }
 }
 
 /*

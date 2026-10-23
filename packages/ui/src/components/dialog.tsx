@@ -28,6 +28,8 @@ export function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "fixed top-1/2 left-1/2 z-(--ld-z-modal) grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-5",
+          // Taller than a landscape phone or a half-screen keyboard? Scroll inside, not off-screen.
+          "max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain",
           "rounded-xl border border-border bg-surface-raised p-6 text-foreground shadow-xl outline-none",
           "data-[state=closed]:animate-scale-out data-[state=open]:animate-scale-in",
           className,

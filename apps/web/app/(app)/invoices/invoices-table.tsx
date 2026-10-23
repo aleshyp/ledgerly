@@ -169,9 +169,19 @@ export function InvoicesTable() {
               const unpaid = current === "open" || current === "overdue";
               return (
                 <TableRow key={invoice.id}>
-                  <TableCell className="pl-4">
+                  <TableCell className="pl-4 whitespace-normal">
                     <div className="font-medium">{invoice.customer}</div>
-                    <div className="text-xs text-foreground-muted tabular">{invoice.number}</div>
+                    {/* The date columns hide on small screens, so their values fold in here. */}
+                    <div className="text-xs text-foreground-muted tabular">
+                      {invoice.number}
+                      <span className="md:hidden"> · Issued {formatDate(invoice.issued)}</span>
+                      <span className="sm:hidden">
+                        {" · "}
+                        {invoice.paidOn
+                          ? `Paid ${formatDate(invoice.paidOn)}`
+                          : `Due ${formatDate(invoice.due)}`}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="hidden text-foreground-muted md:table-cell">
                     {formatDate(invoice.issued)}
@@ -228,9 +238,14 @@ export function InvoicesTable() {
         {filtered.length > 0 && (
           <TableFooter>
             <TableRow className="hover:bg-transparent">
-              <TableCell colSpan={4} className="pl-4 text-foreground-muted">
+              {/* One cell per column, hidden like the headers: a colSpan over hidden columns
+                  makes phantom ones, which widens the table and misaligns the total. */}
+              <TableCell className="pl-4 text-foreground-muted">
                 {filtered.length} invoice{filtered.length === 1 ? "" : "s"}
               </TableCell>
+              <TableCell className="hidden md:table-cell" />
+              <TableCell className="hidden sm:table-cell" />
+              <TableCell />
               <TableCell className="text-right tabular">{formatCurrency(total)}</TableCell>
               <TableCell className="pr-4" />
             </TableRow>

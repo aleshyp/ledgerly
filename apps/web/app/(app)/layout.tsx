@@ -27,7 +27,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </aside>
 
         <div className="flex min-w-0 flex-col">
-          <header className="sticky top-0 z-(--ld-z-sticky) border-b bg-surface/85 backdrop-blur-md">
+          <header className="sticky top-0 z-(--ld-z-sticky) border-b bg-surface/85 backdrop-blur-md short:static">
             <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
               <Link href="/" aria-label="Ledgerly home" className="lg:hidden">
                 <Logo />

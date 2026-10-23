@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@ledgerly/ui";
 import { Menu } from "lucide-react";
+import { ThemeMenuItem } from "./theme-toggle";
 
 /** The marketing nav below `md`, where the inline links don’t fit. */
 export function MobileNav({ links }: { links: Array<{ href: string; label: string }> }) {
@@ -31,6 +32,8 @@ export function MobileNav({ links }: { links: Array<{ href: string; label: strin
         <DropdownMenuItem asChild>
           <Link href="/dashboard">View live demo</Link>
         </DropdownMenuItem>
+        <DropdownMenuSeparator className="sm:hidden" />
+        <ThemeMenuItem className="sm:hidden" />
       </DropdownMenuContent>
     </DropdownMenu>
   );
