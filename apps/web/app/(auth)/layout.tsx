@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <Link href="/" aria-label="Ledgerly home" className="w-fit">
           <Logo />
         </Link>
-        <div className="mx-auto grid w-full max-w-sm flex-1 content-center gap-8 py-12">
+        <div className="mx-auto grid w-full max-w-sm flex-1 content-center gap-8 py-4">
           {children}
         </div>
         <Text size="xs" tone="muted">
