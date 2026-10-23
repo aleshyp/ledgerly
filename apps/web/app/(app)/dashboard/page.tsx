@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
   Progress,
+  StatCard,
 } from "@ledgerly/ui";
 import { ArrowDownRight, ArrowUpRight, TriangleAlert } from "lucide-react";
 import { CashFlowCard } from "@/components/cash-flow-chart";
@@ -28,24 +29,21 @@ function KpiCard({ kpi }: { kpi: Kpi }) {
   const Icon = up ? ArrowUpRight : ArrowDownRight;
 
   return (
-    <Card className="gap-3">
-      <CardHeader>
-        <CardDescription className="font-medium">{kpi.label}</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-2">
-        <div className={`text-2xl font-semibold tabular ${kpi.value < 0 ? "text-negative" : ""}`}>
-          {formatCurrency(kpi.value)}
-        </div>
-        <div className="flex items-center gap-2 text-xs">
+    <StatCard
+      label={kpi.label}
+      value={formatCurrency(kpi.value)}
+      tone={kpi.value < 0 ? "negative" : "default"}
+      meta={
+        <>
           <Badge variant={good ? "success" : "danger"}>
             <Icon />
             <span className="sr-only">{up ? "Up" : "Down"}</span>
             {formatPercent(kpi.change)}
           </Badge>
-          <span className="text-foreground-muted">{kpi.hint}</span>
-        </div>
-      </CardContent>
-    </Card>
+          {kpi.hint}
+        </>
+      }
+    />
   );
 }
 
