@@ -66,6 +66,8 @@ export type Transaction = {
   status: TransactionStatus;
   memo?: string;
   receipt?: string;
+  /** The company card a charge on the credit account was made with. */
+  card?: string;
 };
 
 export const transactions: Transaction[] = [
@@ -86,6 +88,7 @@ export const transactions: Transaction[] = [
     account: "Company card",
     amount: -45.0,
     status: "completed",
+    card: "card_sw",
   },
   {
     id: "txn_03",
@@ -104,6 +107,7 @@ export const transactions: Transaction[] = [
     account: "Company card",
     amount: -684.2,
     status: "completed",
+    card: "card_travel",
   },
   {
     id: "txn_05",
@@ -122,6 +126,7 @@ export const transactions: Transaction[] = [
     account: "Company card",
     amount: -1218.4,
     status: "completed",
+    card: "card_cloud",
   },
   {
     id: "txn_07",
@@ -149,6 +154,7 @@ export const transactions: Transaction[] = [
     account: "Company card",
     amount: -96.0,
     status: "completed",
+    card: "card_sw",
   },
   {
     id: "txn_10",
@@ -167,6 +173,7 @@ export const transactions: Transaction[] = [
     account: "Company card",
     amount: -38.9,
     status: "completed",
+    card: "card_travel",
   },
   {
     id: "txn_12",
@@ -185,6 +192,7 @@ export const transactions: Transaction[] = [
     account: "Company card",
     amount: -216.0,
     status: "completed",
+    card: "card_sw",
   },
   {
     id: "txn_14",
@@ -221,6 +229,7 @@ export const transactions: Transaction[] = [
     account: "Company card",
     amount: -64.0,
     status: "failed",
+    card: "card_sw",
   },
   {
     id: "txn_18",
@@ -251,6 +260,180 @@ export const budgets: Budget[] = Object.entries(budgetLimits).map(([category, li
   limit,
   spent: categorySpend(transactions, category),
 }));
+
+export const team = [
+  { name: currentUser.name, role: currentUser.role },
+  { name: "Sam Okafor", role: "Operations manager" },
+  { name: "Riley Santos", role: "Events lead" },
+];
+
+export type CardStatus = "active" | "frozen";
+
+export type CompanyCard = {
+  id: string;
+  /** What the card is for, shown as its title. */
+  name: string;
+  holder: string;
+  mask: string;
+  kind: "virtual" | "physical";
+  status: CardStatus;
+  /** Monthly spend limit. */
+  limit: number;
+};
+
+export const companyCards: CompanyCard[] = [
+  {
+    id: "card_sw",
+    name: "Software subscriptions",
+    holder: "Avery Chen",
+    mask: "3307",
+    kind: "virtual",
+    status: "active",
+    limit: 600,
+  },
+  {
+    id: "card_travel",
+    name: "Travel",
+    holder: "Sam Okafor",
+    mask: "5518",
+    kind: "physical",
+    status: "active",
+    limit: 1500,
+  },
+  {
+    id: "card_cloud",
+    name: "Cloud hosting",
+    holder: "Avery Chen",
+    mask: "9264",
+    kind: "virtual",
+    status: "active",
+    limit: 1500,
+  },
+  {
+    id: "card_events",
+    name: "Farmers market stall",
+    holder: "Riley Santos",
+    mask: "6043",
+    kind: "physical",
+    status: "frozen",
+    limit: 500,
+  },
+];
+
+/** Spend that counts against a card’s limit, on the same terms as `categorySpend`. */
+export function cardSpend(list: Transaction[], cardId: string) {
+  return list
+    .filter((t) => t.card === cardId && t.amount < 0 && t.status !== "failed")
+    .reduce((sum, t) => sum - t.amount, 0);
+}
+
+/** `draft` and `sent` are stored; whether a sent invoice is open or overdue depends on the day. */
+export type InvoiceState = "draft" | "sent" | "paid";
+export type InvoiceStatus = "draft" | "open" | "overdue" | "paid";
+
+export type Invoice = {
+  id: string;
+  number: string;
+  customer: string;
+  issued: string;
+  due: string;
+  amount: number;
+  state: InvoiceState;
+  paidOn?: string;
+};
+
+export function invoiceStatus(invoice: Invoice, today = demoToday): InvoiceStatus {
+  if (invoice.state === "sent") return invoice.due < today ? "overdue" : "open";
+  return invoice.state;
+}
+
+/** Adds days to an ISO date, in UTC so no time zone can shift the result. */
+export function addDays(iso: string, days: number) {
+  const date = new Date(`${iso}T12:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+/** Net 30. */
+export const invoiceTermDays = 30;
+
+export const invoices: Invoice[] = [
+  {
+    id: "inv_1048",
+    number: "INV-1048",
+    customer: "Harbor Lane Café",
+    issued: "2026-10-22",
+    due: "2026-11-21",
+    amount: 2180.0,
+    state: "draft",
+  },
+  {
+    id: "inv_1047",
+    number: "INV-1047",
+    customer: "Copperleaf Hotel",
+    issued: "2026-10-20",
+    due: "2026-11-19",
+    amount: 5640.0,
+    state: "sent",
+  },
+  {
+    id: "inv_1046",
+    number: "INV-1046",
+    customer: "Fernhill Bakery",
+    issued: "2026-10-15",
+    due: "2026-11-14",
+    amount: 3215.5,
+    state: "sent",
+  },
+  {
+    id: "inv_1045",
+    number: "INV-1045",
+    customer: "Marlow & Finch Grocers",
+    issued: "2026-10-08",
+    due: "2026-11-07",
+    amount: 4980.0,
+    state: "paid",
+    paidOn: "2026-10-18",
+  },
+  {
+    id: "inv_1044",
+    number: "INV-1044",
+    customer: "Tidewater Cycles",
+    issued: "2026-09-30",
+    due: "2026-10-30",
+    amount: 1120.75,
+    state: "paid",
+    paidOn: "2026-10-14",
+  },
+  {
+    id: "inv_1043",
+    number: "INV-1043",
+    customer: "Fernhill Bakery",
+    issued: "2026-09-15",
+    due: "2026-10-15",
+    amount: 2890.0,
+    state: "paid",
+    paidOn: "2026-10-10",
+  },
+  {
+    id: "inv_1042",
+    number: "INV-1042",
+    customer: "Atlas Studio",
+    issued: "2026-09-12",
+    due: "2026-10-12",
+    amount: 640.0,
+    state: "sent",
+  },
+  {
+    id: "inv_1041",
+    number: "INV-1041",
+    customer: "Copperleaf Hotel",
+    issued: "2026-09-05",
+    due: "2026-10-05",
+    amount: 5210.0,
+    state: "sent",
+  },
+];
 
 export type Plan = {
   name: string;

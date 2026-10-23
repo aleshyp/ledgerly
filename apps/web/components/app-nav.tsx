@@ -2,18 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Badge, cn } from "@ledgerly/ui";
+import { cn } from "@ledgerly/ui";
 import { ArrowLeftRight, CreditCard, FileText, LayoutDashboard, Settings } from "lucide-react";
 
 const items = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
+  { href: "/cards", label: "Cards", icon: CreditCard },
+  { href: "/invoices", label: "Invoices", icon: FileText },
   { href: "/settings", label: "Settings", icon: Settings },
-];
-
-const comingSoon = [
-  { label: "Cards", icon: CreditCard },
-  { label: "Invoices", icon: FileText },
 ];
 
 export function AppNav({ orientation = "vertical" }: { orientation?: "vertical" | "horizontal" }) {
@@ -41,19 +38,6 @@ export function AppNav({ orientation = "vertical" }: { orientation?: "vertical" 
           </Link>
         );
       })}
-      {vertical &&
-        comingSoon.map(({ label, icon: Icon }) => (
-          <span
-            key={label}
-            className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground-muted"
-          >
-            <Icon className="size-4" />
-            {label}
-            <Badge variant="outline" className="ml-auto">
-              Soon
-            </Badge>
-          </span>
-        ))}
     </nav>
   );
 }
