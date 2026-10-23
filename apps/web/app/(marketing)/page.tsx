@@ -255,7 +255,13 @@ export default function HomePage() {
       {/* CTA */}
       <section>
         <Container className="pb-24">
-          <div className="grid reveal justify-items-center gap-6 rounded-3xl border bg-brand-subtle px-6 py-16 text-center">
+          {/* Surface, not brand-subtle: at panel size the dark-mode tint reads as a muddy hole,
+              and neutral text and buttons clash with it. The glow echoes the hero instead. */}
+          <div className="relative isolate grid reveal justify-items-center gap-6 overflow-hidden rounded-3xl border bg-surface px-6 py-16 text-center">
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 -z-10 h-full bg-linear-to-b from-glow-start via-glow-mid to-transparent"
+            />
             <Heading level={2} size="xl" className="max-w-xl">
               Close your books in days, not weeks
             </Heading>
