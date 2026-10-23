@@ -62,7 +62,9 @@ The bar is WCAG 2.2 AA Reflow (1.4.10): everything works at 320 CSS px wide (a 1
 
 - Targets are at least 24px (2.5.8). On touch, primary and repeated actions grow to 44px with
   `pointer-coarse:` (`pointer-coarse:h-11`). Grow the hit area with padding or a pseudo-element
-  rather than redesigning the desktop look.
+  rather than redesigning the desktop look. `Checkbox`, `Switch` and link buttons show the
+  pattern: `relative` on the control, then `pointer-coarse:after:absolute` and
+  `pointer-coarse:after:-inset-2`. Keep the grown areas of stacked items from overlapping.
 - Tailwind's `hover:` only matches devices that can hover, so nothing essential lives behind
   hover: no hover-only actions, reveals or tooltips.
 - Form controls render at 16px or larger on touch (`text-base pointer-fine:text-sm`). iOS Safari

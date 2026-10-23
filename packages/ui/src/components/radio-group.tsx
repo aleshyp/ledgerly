@@ -25,7 +25,9 @@ export function RadioGroupItem({
     <RadioGroupPrimitive.Item
       data-slot="radio-group-item"
       className={cn(
-        "peer aspect-square size-4 shrink-0 rounded-full border border-input bg-surface shadow-xs transition-colors outline-none",
+        "peer relative aspect-square size-4 shrink-0 rounded-full border border-input bg-surface shadow-xs transition-colors outline-none",
+        // A 32px invisible target on touch, matching the group's row pitch so neighbors don't overlap.
+        "pointer-coarse:after:absolute pointer-coarse:after:-inset-2",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "data-[state=checked]:border-primary",
         "disabled:cursor-not-allowed disabled:opacity-50",

@@ -41,6 +41,7 @@ export function DialogContent({
           <DialogPrimitive.Close
             className={cn(
               "absolute top-4 right-4 rounded-sm p-1 text-foreground-muted transition-colors hover:bg-accent hover:text-foreground",
+              "pointer-coarse:after:absolute pointer-coarse:after:-inset-2",
               "focus-visible:outline-2 focus-visible:outline-ring",
             )}
           >

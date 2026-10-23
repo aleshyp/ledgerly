@@ -31,8 +31,15 @@ export const buttonVariants = cva(
         "icon-sm": "size-8",
       },
     },
-    // Links sit inline with text, so drop the size's height and padding.
-    compoundVariants: [{ variant: "link", className: "h-auto px-0" }],
+    // Links sit inline with text, so drop the size's height and padding. On touch, an invisible
+    // pseudo-element grows the 20px-tall text to a 44px target without moving the layout.
+    compoundVariants: [
+      {
+        variant: "link",
+        className:
+          "relative h-auto px-0 pointer-coarse:after:absolute pointer-coarse:after:inset-x-0 pointer-coarse:after:-inset-y-3",
+      },
+    ],
     defaultVariants: {
       variant: "primary",
       size: "md",

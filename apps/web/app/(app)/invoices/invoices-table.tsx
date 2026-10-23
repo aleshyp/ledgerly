@@ -131,7 +131,7 @@ export function InvoicesTable() {
             <TableHead className="pl-4">Customer</TableHead>
             <TableHead className="hidden md:table-cell">Issued</TableHead>
             <TableHead className="hidden sm:table-cell">Due</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead className="hidden sm:table-cell">Status</TableHead>
             <TableHead className="text-right">Amount</TableHead>
             <TableHead className="w-12 pr-4">
               <span className="sr-only">Actions</span>
@@ -191,11 +191,15 @@ export function InvoicesTable() {
                       ? `Paid ${formatDate(invoice.paidOn)}`
                       : formatDate(invoice.due)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <InvoiceStatusBadge status={current} />
                   </TableCell>
                   <TableCell className="text-right font-medium tabular">
                     {formatCurrency(invoice.amount)}
+                    {/* Status has its own column from `sm`; below that it sits under the amount. */}
+                    <div className="mt-1 sm:hidden">
+                      <InvoiceStatusBadge status={current} />
+                    </div>
                   </TableCell>
                   <TableCell className="pr-4">
                     <DropdownMenu>
@@ -245,7 +249,7 @@ export function InvoicesTable() {
               </TableCell>
               <TableCell className="hidden md:table-cell" />
               <TableCell className="hidden sm:table-cell" />
-              <TableCell />
+              <TableCell className="hidden sm:table-cell" />
               <TableCell className="text-right tabular">{formatCurrency(total)}</TableCell>
               <TableCell className="pr-4" />
             </TableRow>

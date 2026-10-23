@@ -14,14 +14,16 @@ test("the status filter lives in the URL", async ({ page }) => {
 test("marking an invoice as paid can be undone", async ({ page }) => {
   await page.goto("/invoices");
   const row = page.getByRole("row", { name: /INV-1042/ });
-  await expect(row.getByText("Overdue")).toBeVisible();
+  // Each row renders the status twice, in its column and under the amount for phones; CSS shows
+  // one. Match the visible one.
+  await expect(row.getByText("Overdue").filter({ visible: true })).toBeVisible();
 
   await row.getByRole("button", { name: /Actions for INV-1042/ }).click();
   await page.getByRole("menuitem", { name: "Mark as paid" }).click();
-  await expect(row.getByText("Paid", { exact: true })).toBeVisible();
+  await expect(row.getByText("Paid", { exact: true }).filter({ visible: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Undo" }).click();
-  await expect(row.getByText("Overdue")).toBeVisible();
+  await expect(row.getByText("Overdue").filter({ visible: true })).toBeVisible();
 });
 
 test("a new invoice gets the next number", async ({ page }) => {
@@ -38,5 +40,5 @@ test("a new invoice gets the next number", async ({ page }) => {
 
   const row = page.getByRole("row", { name: /Juniper Street Deli/ });
   await expect(row.getByText("INV-1049")).toBeVisible();
-  await expect(row.getByText("Open")).toBeVisible();
+  await expect(row.getByText("Open").filter({ visible: true })).toBeVisible();
 });
