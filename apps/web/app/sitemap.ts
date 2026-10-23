@@ -6,6 +6,8 @@ const routes = [
   { path: "/pricing", priority: 0.8 },
   { path: "/dashboard", priority: 0.8 },
   { path: "/transactions", priority: 0.6 },
+  { path: "/cards", priority: 0.5 },
+  { path: "/invoices", priority: 0.5 },
   { path: "/settings", priority: 0.4 },
   { path: "/contact", priority: 0.4 },
   { path: "/signup", priority: 0.4 },
