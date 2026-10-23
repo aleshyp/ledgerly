@@ -184,6 +184,9 @@ export const contrastPairs: ReadonlyArray<[SemanticColor, SemanticColor, number]
   ["warning-subtle-foreground", "warning-subtle", 4.5],
   ["info-foreground", "info", 4.5],
   ["info-subtle-foreground", "info-subtle", 4.5],
+  // Toast status icons (graphics, so 3:1).
+  ["success", "surface-raised", 3],
+  ["negative", "surface-raised", 3],
   ["ring", "background", 3],
   ["input", "background", 1.4],
 ];

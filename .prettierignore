@@ -3,3 +3,5 @@ dist
 .next
 storybook-static
 .turbo
+test-results
+playwright-report

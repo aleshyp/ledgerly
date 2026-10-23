@@ -17,6 +17,11 @@ import {
 } from "@ledgerly/ui";
 import { Check } from "lucide-react";
 import { plans } from "@/lib/data";
+import { formatPrice } from "@/lib/format";
+
+const bestSaving = Math.max(
+  ...plans.filter((p) => p.monthly > 0).map((p) => Math.round((1 - p.annual / p.monthly) * 100)),
+);
 
 export function PricingPlans() {
   const [annual, setAnnual] = useState(true);
@@ -24,15 +29,9 @@ export function PricingPlans() {
   return (
     <div className="grid gap-10">
       <div className="flex items-center justify-center gap-3">
-        <Label htmlFor="billing">Monthly</Label>
-        <Switch
-          id="billing"
-          checked={annual}
-          onCheckedChange={setAnnual}
-          aria-label="Bill annually"
-        />
+        <Switch id="billing" checked={annual} onCheckedChange={setAnnual} />
         <Label htmlFor="billing">
-          Annually <Badge variant="success">Save up to 18%</Badge>
+          Bill annually <Badge variant="success">Save up to {bestSaving}%</Badge>
         </Label>
       </div>
 
@@ -46,14 +45,16 @@ export function PricingPlans() {
             >
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{plan.name}</CardTitle>
+                  <CardTitle level={2} className="text-lg">
+                    {plan.name}
+                  </CardTitle>
                   {plan.featured && <Badge variant="brand">Most popular</Badge>}
                 </div>
                 <CardDescription>{plan.description}</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-6">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">${price}</span>
+                  <span className="text-4xl font-bold tabular">{formatPrice(price)}</span>
                   <span className="text-sm text-foreground-muted">
                     / month{price > 0 && annual ? ", billed annually" : ""}
                   </span>
@@ -61,7 +62,7 @@ export function PricingPlans() {
                 <ul className="grid gap-3">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 size-4 shrink-0 text-positive" />
+                      <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-positive" />
                       {feature}
                     </li>
                   ))}
@@ -69,7 +70,7 @@ export function PricingPlans() {
               </CardContent>
               <CardFooter>
                 <Button asChild className="w-full" variant={plan.featured ? "primary" : "outline"}>
-                  <Link href="/login">{plan.cta}</Link>
+                  <Link href={plan.href}>{plan.cta}</Link>
                 </Button>
               </CardFooter>
             </Card>

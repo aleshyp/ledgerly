@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { Button, Container } from "@ledgerly/ui";
 import { Logo } from "./logo";
+import { MobileNav } from "./mobile-nav";
 import { ThemeToggle } from "./theme-toggle";
 
 const links = [
   { href: "/#features", label: "Features" },
   { href: "/#customers", label: "Customers" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function SiteHeader() {
@@ -33,12 +35,13 @@ export function SiteHeader() {
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
-          <Button asChild variant="ghost" className="hidden sm:inline-flex">
+          <Button asChild variant="ghost" className="hidden md:inline-flex">
             <Link href="/login">Sign in</Link>
           </Button>
           <Button asChild>
-            <Link href="/login">Get started</Link>
+            <Link href="/signup">Get started</Link>
           </Button>
+          <MobileNav links={links} />
         </div>
       </Container>
     </header>

@@ -1,34 +1,24 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
   Badge,
-  Button,
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
   Progress,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
 } from "@ledgerly/ui";
-import { ArrowDownRight, ArrowUpRight, Download, Info, Plus, TriangleAlert } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, TriangleAlert } from "lucide-react";
 import { CashFlowCard } from "@/components/cash-flow-chart";
+import { ExportButton } from "@/components/export-button";
+import { NewTransactionDialog } from "@/components/new-transaction-dialog";
 import { PageHeader } from "@/components/page-header";
-import { StatusBadge } from "@/components/status-badge";
-import { accounts, budgets, cashFlow, currentUser, kpis, transactions, type Kpi } from "@/lib/data";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { RecentTransactions } from "@/components/recent-transactions";
+import { accounts, budgets, cashFlow, currentUser, kpis, type Kpi } from "@/lib/data";
+import { formatCurrency, formatMonthLong, formatPercent } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -36,38 +26,21 @@ function KpiCard({ kpi }: { kpi: Kpi }) {
   const up = kpi.change >= 0;
   const good = up === (kpi.goodWhen === "up");
   const Icon = up ? ArrowUpRight : ArrowDownRight;
-  const value = kpi.label === "Runway" ? `${kpi.value} mo` : formatCurrency(kpi.value);
 
   return (
     <Card className="gap-3">
       <CardHeader>
         <CardDescription className="font-medium">{kpi.label}</CardDescription>
-        {kpi.label === "Runway" && (
-          <CardAction>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label="How runway is calculated"
-                  className="-mt-1.5 -mr-2"
-                >
-                  <Info />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                Cash on hand divided by average net burn over the last 3 months.
-              </TooltipContent>
-            </Tooltip>
-          </CardAction>
-        )}
       </CardHeader>
       <CardContent className="grid gap-2">
-        <div className="text-2xl font-semibold">{value}</div>
+        <div className={`text-2xl font-semibold tabular ${kpi.value < 0 ? "text-negative" : ""}`}>
+          {formatCurrency(kpi.value)}
+        </div>
         <div className="flex items-center gap-2 text-xs">
           <Badge variant={good ? "success" : "danger"}>
             <Icon />
-            {kpi.label === "Runway" ? `+${kpi.change} mo` : `${Math.abs(kpi.change)}%`}
+            <span className="sr-only">{up ? "Up" : "Down"}</span>
+            {formatPercent(kpi.change)}
           </Badge>
           <span className="text-foreground-muted">{kpi.hint}</span>
         </div>
@@ -76,38 +49,46 @@ function KpiCard({ kpi }: { kpi: Kpi }) {
   );
 }
 
+function OverBudgetAlert() {
+  const over = budgets.filter((b) => b.spent > b.limit);
+  if (over.length === 0) return null;
+
+  const title =
+    over.length === 1
+      ? `${over[0]!.category} is over budget`
+      : `${over.length} categories are over budget`;
+
+  return (
+    <Alert variant="warning">
+      <TriangleAlert />
+      <AlertTitle>{title}</AlertTitle>
+      <AlertDescription>
+        {over
+          .map((b) => `${b.category} is ${formatCurrency(b.spent - b.limit)} over its limit`)
+          .join("; ")}
+        . Review recent charges or raise the limit in Settings.
+      </AlertDescription>
+    </Alert>
+  );
+}
+
 export default function DashboardPage() {
-  const overBudget = budgets.filter((b) => b.spent > b.limit);
+  const month = formatMonthLong(cashFlow.at(-1)!.month);
 
   return (
     <>
       <PageHeader
-        title={`Good morning, ${currentUser.name.split(" ")[0]}`}
-        description={`Here’s how ${currentUser.company} is doing this month.`}
+        title={`Welcome back, ${currentUser.name.split(" ")[0]}`}
+        description={`Here’s how ${currentUser.company} is doing in ${month}.`}
         actions={
           <>
-            <Button variant="outline">
-              <Download /> Export
-            </Button>
-            <Button asChild>
-              <Link href="/transactions">
-                <Plus /> New transaction
-              </Link>
-            </Button>
+            <ExportButton />
+            <NewTransactionDialog />
           </>
         }
       />
 
-      {overBudget.length > 0 && (
-        <Alert variant="warning">
-          <TriangleAlert />
-          <AlertTitle>{overBudget.map((b) => b.category).join(", ")} is over budget</AlertTitle>
-          <AlertDescription>
-            Spend is {formatCurrency(overBudget[0]!.spent - overBudget[0]!.limit)} over the monthly
-            limit. Review recent charges or raise the limit in Settings.
-          </AlertDescription>
-        </Alert>
-      )}
+      <OverBudgetAlert />
 
       <section aria-label="Key metrics" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((kpi) => (
@@ -118,55 +99,12 @@ export default function DashboardPage() {
       <CashFlowCard data={cashFlow} />
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent transactions</CardTitle>
-            <CardDescription>Latest activity across all accounts</CardDescription>
-            <CardAction>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/transactions">View all</Link>
-              </Button>
-            </CardAction>
-          </CardHeader>
-          <CardContent className="px-3">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead>Merchant</TableHead>
-                  <TableHead className="hidden sm:table-cell">Date</TableHead>
-                  <TableHead className="hidden md:table-cell">Status</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transactions.slice(0, 6).map((t) => (
-                  <TableRow key={t.id}>
-                    <TableCell>
-                      <div className="font-medium">{t.merchant}</div>
-                      <div className="text-xs text-foreground-muted">{t.category}</div>
-                    </TableCell>
-                    <TableCell className="hidden text-foreground-muted sm:table-cell">
-                      {formatDate(t.date)}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <StatusBadge status={t.status} />
-                    </TableCell>
-                    <TableCell
-                      className={`text-right font-medium tabular ${t.amount > 0 ? "text-positive" : ""}`}
-                    >
-                      {formatCurrency(t.amount, { signed: true })}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <RecentTransactions />
 
         <div className="grid content-start gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Accounts</CardTitle>
+              <CardTitle level={2}>Accounts</CardTitle>
               <CardDescription>Balances as of today</CardDescription>
             </CardHeader>
             <CardContent>
@@ -178,7 +116,7 @@ export default function DashboardPage() {
                   >
                     <div className="grid">
                       <span className="text-sm font-medium">{account.name}</span>
-                      <span className="text-xs text-foreground-muted">
+                      <span className="text-xs text-foreground-muted capitalize">
                         {account.type} ···· {account.mask}
                       </span>
                     </div>
@@ -195,8 +133,8 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Budgets</CardTitle>
-              <CardDescription>October spend by category</CardDescription>
+              <CardTitle level={2}>Budgets</CardTitle>
+              <CardDescription>{month} spend by category</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-5">
               {budgets.map((budget) => {
@@ -211,7 +149,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <Progress
-                      value={ratio * 100}
+                      value={Math.min(ratio, 1) * 100}
                       tone={tone}
                       aria-label={`${budget.category} budget used`}
                     />

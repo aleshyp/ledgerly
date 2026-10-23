@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
   Avatar,
   AvatarFallback,
+  AvatarImage,
   Button,
   Card,
   CardContent,
@@ -39,10 +41,12 @@ import {
   TabsList,
   TabsTrigger,
   Text,
+  toast,
 } from "@ledgerly/ui";
 import { CircleCheck } from "lucide-react";
 import { currentUser } from "@/lib/data";
 import { initials } from "@/lib/format";
+import { type SettingsTab, isSettingsTab } from "./tabs";
 
 const notifications = [
   {
@@ -71,12 +75,57 @@ const notifications = [
   },
 ];
 
-export function SettingsTabs() {
+const frequencies = [
+  { value: "realtime", label: "As they happen" },
+  { value: "hourly", label: "Hourly summary" },
+  { value: "daily", label: "Daily summary" },
+];
+
+export function SettingsTabs({ initialTab }: { initialTab: SettingsTab }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [tab, setTab] = useState(initialTab);
   const [saved, setSaved] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+  const [photo, setPhoto] = useState<string>();
+  const photoInput = useRef<HTMLInputElement>(null);
+
+  // Object URLs hold the file in memory until revoked.
+  useEffect(() => {
+    if (!photo) return;
+    return () => URL.revokeObjectURL(photo);
+  }, [photo]);
+
+  function onTabChange(value: string) {
+    if (!isSettingsTab(value)) return;
+    setTab(value);
+    router.replace(`${pathname}?tab=${value}`, { scroll: false });
+  }
+
+  function onPhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast({
+        variant: "danger",
+        title: "That file isn’t an image",
+        description: "Choose a JPG or PNG photo.",
+      });
+      return;
+    }
+    setPhoto(URL.createObjectURL(file));
+    toast({ variant: "success", title: "Photo updated" });
+  }
+
+  function onPreferenceChange(label: string, on: boolean) {
+    toast({
+      title: "Notification preferences saved",
+      description: `${label} ${on ? "on" : "off"}.`,
+    });
+  }
 
   return (
-    <Tabs defaultValue="profile" className="gap-6">
+    <Tabs value={tab} onValueChange={onTabChange} className="gap-6">
       <TabsList>
         <TabsTrigger value="profile">Profile</TabsTrigger>
         <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -97,10 +146,12 @@ export function SettingsTabs() {
               e.preventDefault();
               setSaved(true);
             }}
+            // A fresh edit makes the old confirmation stale.
+            onChange={() => setSaved(false)}
             className="grid gap-6"
           >
             <CardHeader>
-              <CardTitle>Profile</CardTitle>
+              <CardTitle level={2}>Profile</CardTitle>
               <CardDescription>
                 This information appears on approvals and audit logs.
               </CardDescription>
@@ -108,10 +159,23 @@ export function SettingsTabs() {
             <CardContent className="grid gap-6">
               <div className="flex items-center gap-4">
                 <Avatar size="lg">
+                  {photo && <AvatarImage src={photo} alt="" />}
                   <AvatarFallback>{initials(currentUser.name)}</AvatarFallback>
                 </Avatar>
-                <Button type="button" variant="outline" size="sm">
-                  Upload photo
+                <input
+                  ref={photoInput}
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  hidden
+                  onChange={onPhotoChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => photoInput.current?.click()}
+                >
+                  {photo ? "Change photo…" : "Upload photo…"}
                 </Button>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -157,8 +221,10 @@ export function SettingsTabs() {
       <TabsContent value="notifications" className="grid max-w-3xl gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Email notifications</CardTitle>
-            <CardDescription>Choose what Ledgerly emails you about.</CardDescription>
+            <CardTitle level={2}>Email notifications</CardTitle>
+            <CardDescription>
+              Choose what Ledgerly emails you about. Changes save automatically.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">
             {notifications.map((n, i) => (
@@ -171,7 +237,11 @@ export function SettingsTabs() {
                       {n.description}
                     </Text>
                   </div>
-                  <Switch id={`notify-${n.id}`} defaultChecked={n.on} />
+                  <Switch
+                    id={`notify-${n.id}`}
+                    defaultChecked={n.on}
+                    onCheckedChange={(on) => onPreferenceChange(n.label, on)}
+                  />
                 </div>
               </div>
             ))}
@@ -179,16 +249,21 @@ export function SettingsTabs() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Delivery</CardTitle>
+            <CardTitle level={2}>Delivery</CardTitle>
             <CardDescription>How often should we bundle non-urgent alerts?</CardDescription>
           </CardHeader>
           <CardContent>
-            <RadioGroup defaultValue="realtime" aria-label="Alert frequency">
-              {[
-                { value: "realtime", label: "As they happen" },
-                { value: "hourly", label: "Hourly summary" },
-                { value: "daily", label: "Daily summary" },
-              ].map((option) => (
+            <RadioGroup
+              defaultValue="realtime"
+              aria-label="Alert frequency"
+              onValueChange={(value) =>
+                toast({
+                  title: "Delivery preference saved",
+                  description: frequencies.find((f) => f.value === value)?.label,
+                })
+              }
+            >
+              {frequencies.map((option) => (
                 <div key={option.value} className="flex items-center gap-2">
                   <RadioGroupItem value={option.value} id={`freq-${option.value}`} />
                   <Label htmlFor={`freq-${option.value}`}>{option.label}</Label>
@@ -202,7 +277,7 @@ export function SettingsTabs() {
       <TabsContent value="workspace" className="grid max-w-3xl gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Workspace</CardTitle>
+            <CardTitle level={2}>Workspace</CardTitle>
             <CardDescription>Settings shared by everyone at {currentUser.company}.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -226,7 +301,7 @@ export function SettingsTabs() {
         </Card>
         <Card className="border-danger/40">
           <CardHeader>
-            <CardTitle>Close workspace</CardTitle>
+            <CardTitle level={2}>Close workspace</CardTitle>
             <CardDescription>
               Permanently close all accounts and delete workspace data. This cannot be undone.
             </CardDescription>
@@ -256,7 +331,17 @@ export function SettingsTabs() {
                     <Button variant="outline">Keep workspace</Button>
                   </DialogClose>
                   <DialogClose asChild>
-                    <Button variant="danger" disabled={confirmText !== "CLOSE"}>
+                    <Button
+                      variant="danger"
+                      disabled={confirmText !== "CLOSE"}
+                      onClick={() =>
+                        toast({
+                          title: "Your workspace is still open",
+                          description:
+                            "Closing is turned off in this demo, so nothing was deleted.",
+                        })
+                      }
+                    >
                       Close workspace
                     </Button>
                   </DialogClose>

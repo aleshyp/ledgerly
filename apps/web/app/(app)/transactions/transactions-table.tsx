@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Button,
   Card,
@@ -24,37 +25,85 @@ import {
   TableHeader,
   TableRow,
   Text,
+  toast,
 } from "@ledgerly/ui";
-import { Copy, MoreHorizontal, Pencil, Receipt, Search, Trash2 } from "lucide-react";
+import { Copy, MoreHorizontal, Paperclip, Pencil, Receipt, Search, Trash2 } from "lucide-react";
+import { ExportButton } from "@/components/export-button";
 import { StatusBadge } from "@/components/status-badge";
+import { useTransactions } from "@/components/transactions-provider";
 import type { Transaction, TransactionStatus } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { EditCategoryDialog, ReceiptDialog } from "./row-dialogs";
 
 const ALL = "all";
+const statuses = ["completed", "pending", "failed"] as const satisfies TransactionStatus[];
 
-export function TransactionsTable({
-  transactions,
-  categories,
-}: {
-  transactions: Transaction[];
-  categories: string[];
-}) {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState(ALL);
-  const [status, setStatus] = useState<TransactionStatus | typeof ALL>(ALL);
+const isStatus = (value: string | null): value is TransactionStatus =>
+  statuses.some((s) => s === value);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return transactions.filter(
-      (t) =>
-        (q === "" || t.merchant.toLowerCase().includes(q) || t.account.toLowerCase().includes(q)) &&
-        (category === ALL || t.category === category) &&
-        (status === ALL || t.status === status),
-    );
-  }, [transactions, query, category, status]);
+type RowDialog = { kind: "category" | "receipt"; transaction: Transaction } | null;
+
+export function TransactionsTable({ categories }: { categories: string[] }) {
+  const { transactions, remove, restore } = useTransactions();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [dialog, setDialog] = useState<RowDialog>(null);
+
+  // Filters live in the URL so refresh, Back and shared links keep the view.
+  const query = searchParams.get("q") ?? "";
+  const categoryParam = searchParams.get("category");
+  const category = categoryParam && categories.includes(categoryParam) ? categoryParam : ALL;
+  const statusParam = searchParams.get("status");
+  const status = isStatus(statusParam) ? statusParam : ALL;
+
+  function setParam(key: string, value: string) {
+    const params = new URLSearchParams(searchParams);
+    if (value === "" || value === ALL) params.delete(key);
+    else params.set(key, value);
+    const search = params.toString();
+    router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
+  }
+
+  const q = query.trim().toLowerCase();
+  const filtered = transactions.filter(
+    (t) =>
+      (q === "" ||
+        t.merchant.toLowerCase().includes(q) ||
+        t.account.toLowerCase().includes(q) ||
+        t.category.toLowerCase().includes(q)) &&
+      (category === ALL || t.category === category) &&
+      (status === ALL || t.status === status),
+  );
 
   const net = filtered.reduce((sum, t) => sum + t.amount, 0);
   const hasFilters = query !== "" || category !== ALL || status !== ALL;
+
+  function onDelete(transaction: Transaction) {
+    remove(transaction.id);
+    toast({
+      title: "Transaction deleted",
+      description: `${transaction.merchant} · ${formatCurrency(transaction.amount, { signed: true })}`,
+      action: {
+        label: "Undo",
+        altText: "Undo deleting the transaction",
+        onClick: () => restore(transaction),
+      },
+    });
+  }
+
+  async function onCopyId(id: string) {
+    try {
+      await navigator.clipboard.writeText(id);
+      toast({ title: "Transaction ID copied", description: id });
+    } catch {
+      toast({
+        variant: "danger",
+        title: "Couldn’t copy the ID",
+        description: "Your browser blocked clipboard access. Select the ID and copy it instead.",
+      });
+    }
+  }
 
   return (
     <Card className="gap-4 py-4">
@@ -64,13 +113,13 @@ export function TransactionsTable({
           <Input
             type="search"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search merchant or account"
+            onChange={(e) => setParam("q", e.target.value)}
+            placeholder="Search merchant, account or category"
             aria-label="Search transactions"
             className="pl-9"
           />
         </div>
-        <Select value={category} onValueChange={setCategory}>
+        <Select value={category} onValueChange={(v) => setParam("category", v)}>
           <SelectTrigger aria-label="Filter by category" className="sm:w-44">
             <SelectValue />
           </SelectTrigger>
@@ -83,10 +132,7 @@ export function TransactionsTable({
             ))}
           </SelectContent>
         </Select>
-        <Select
-          value={status}
-          onValueChange={(v) => setStatus(v as TransactionStatus | typeof ALL)}
-        >
+        <Select value={status} onValueChange={(v) => setParam("status", v)}>
           <SelectTrigger aria-label="Filter by status" className="sm:w-36">
             <SelectValue />
           </SelectTrigger>
@@ -98,18 +144,18 @@ export function TransactionsTable({
           </SelectContent>
         </Select>
         {hasFilters && (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setQuery("");
-              setCategory(ALL);
-              setStatus(ALL);
-            }}
-          >
-            Reset
+          <Button variant="ghost" onClick={() => router.replace(pathname, { scroll: false })}>
+            Reset filters
           </Button>
         )}
+        <ExportButton rows={filtered} />
       </CardContent>
+
+      <p role="status" className="sr-only">
+        {hasFilters
+          ? `${filtered.length} transaction${filtered.length === 1 ? "" : "s"} match your filters`
+          : ""}
+      </p>
 
       <Table>
         <TableHeader>
@@ -129,16 +175,38 @@ export function TransactionsTable({
           {filtered.length === 0 ? (
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={7} className="py-16 text-center">
-                <Text weight="medium">No transactions match your filters</Text>
-                <Text size="sm" tone="muted">
-                  Try a different search term or reset the filters.
-                </Text>
+                {transactions.length === 0 ? (
+                  <>
+                    <Text weight="medium">No transactions yet</Text>
+                    <Text size="sm" tone="muted">
+                      Transactions from your accounts appear here. Use “New transaction” to record
+                      one by hand.
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Text weight="medium">No transactions match your filters</Text>
+                    <Text size="sm" tone="muted">
+                      Try a different search term or reset the filters.
+                    </Text>
+                  </>
+                )}
               </TableCell>
             </TableRow>
           ) : (
             filtered.map((t) => (
               <TableRow key={t.id}>
-                <TableCell className="pl-4 font-medium">{t.merchant}</TableCell>
+                <TableCell className="pl-4 font-medium">
+                  <span className="inline-flex items-center gap-1.5">
+                    {t.merchant}
+                    {t.receipt && (
+                      <>
+                        <Paperclip aria-hidden="true" className="size-3.5 text-foreground-muted" />
+                        <span className="sr-only">(receipt attached)</span>
+                      </>
+                    )}
+                  </span>
+                </TableCell>
                 <TableCell className="hidden text-foreground-muted md:table-cell">
                   {t.category}
                 </TableCell>
@@ -162,24 +230,28 @@ export function TransactionsTable({
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        aria-label={`Actions for ${t.merchant}`}
+                        aria-label={`Actions for ${t.merchant}, ${formatDate(t.date)}`}
                       >
                         <MoreHorizontal />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Pencil /> Edit category
+                      <DropdownMenuItem
+                        onSelect={() => setDialog({ kind: "category", transaction: t })}
+                      >
+                        <Pencil /> Edit category…
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Receipt /> Attach receipt
+                      <DropdownMenuItem
+                        onSelect={() => setDialog({ kind: "receipt", transaction: t })}
+                      >
+                        <Receipt /> {t.receipt ? "Replace receipt…" : "Attach receipt…"}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => navigator.clipboard?.writeText(t.id)}>
+                      <DropdownMenuItem onSelect={() => onCopyId(t.id)}>
                         <Copy /> Copy ID
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem variant="danger">
-                        <Trash2 /> Delete
+                      <DropdownMenuItem variant="danger" onSelect={() => onDelete(t)}>
+                        <Trash2 /> Delete transaction
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -202,6 +274,16 @@ export function TransactionsTable({
           </TableFooter>
         )}
       </Table>
+
+      <EditCategoryDialog
+        transaction={dialog?.kind === "category" ? dialog.transaction : null}
+        categories={categories}
+        onClose={() => setDialog(null)}
+      />
+      <ReceiptDialog
+        transaction={dialog?.kind === "receipt" ? dialog.transaction : null}
+        onClose={() => setDialog(null)}
+      />
     </Card>
   );
 }

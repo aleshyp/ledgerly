@@ -6,6 +6,7 @@ import { Progress } from "./progress";
 import { Separator } from "./separator";
 import { Skeleton } from "./skeleton";
 import { SkipLink } from "./skip-link";
+import { Spinner } from "./spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 import { Heading, Text } from "./typography";
 
@@ -178,6 +179,19 @@ export const SkipToContent: Story = {
       <main id="story-main">
         <Text>Main content</Text>
       </main>
+    </div>
+  ),
+};
+
+/** Decorative: pair it with visible text (“Saving…”), or use `Button loading`. */
+export const Spinners: Story = {
+  render: () => (
+    <div className="flex items-center gap-6">
+      <Spinner />
+      <span className="flex items-center gap-2 text-sm text-foreground-muted">
+        <Spinner /> Saving…
+      </span>
+      <Spinner className="size-6 text-primary" />
     </div>
   ),
 };

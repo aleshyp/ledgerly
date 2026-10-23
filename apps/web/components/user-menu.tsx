@@ -33,21 +33,23 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/settings">
+          <Link href="/settings?tab=profile">
             <User /> Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/settings">
-            <Settings /> Settings
+          <Link href="/settings?tab=workspace">
+            <Settings /> Workspace settings
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <LifeBuoy /> Support
+        <DropdownMenuItem asChild>
+          <Link href="/contact?topic=support">
+            <LifeBuoy /> Contact support
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/">
+          <Link href="/login">
             <LogOut /> Sign out
           </Link>
         </DropdownMenuItem>
