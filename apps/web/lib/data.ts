@@ -354,6 +354,11 @@ export function addDays(iso: string, days: number) {
   return date.toISOString().slice(0, 10);
 }
 
+/** Whole days from one ISO date to another, in UTC like `addDays`. */
+export function daysBetween(from: string, to: string) {
+  return Math.round((Date.parse(`${to}T12:00:00Z`) - Date.parse(`${from}T12:00:00Z`)) / 86_400_000);
+}
+
 /** Net 30. */
 export const invoiceTermDays = 30;
 

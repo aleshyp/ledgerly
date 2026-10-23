@@ -4,6 +4,7 @@ import { Alert, AlertTitle } from "./alert";
 import { Card, CardHeader, CardTitle } from "./card";
 import { Progress } from "./progress";
 import { Spinner } from "./spinner";
+import { StatCard } from "./stat-card";
 
 describe("CardTitle", () => {
   it("is a level 3 heading by default", () => {
@@ -63,5 +64,19 @@ describe("Spinner", () => {
   it("is hidden from assistive tech", () => {
     const { container } = render(<Spinner />);
     expect(container.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+});
+
+describe("StatCard", () => {
+  it("shows the label, value and meta line", () => {
+    render(<StatCard label="Money in" value="$48,210.00" meta="14 transactions" />);
+    expect(screen.getByText("Money in")).toBeInTheDocument();
+    expect(screen.getByText("$48,210.00")).toHaveAttribute("data-slot", "stat-card-value");
+    expect(screen.getByText("14 transactions")).toHaveAttribute("data-slot", "stat-card-meta");
+  });
+
+  it("leaves out the meta line when there's nothing to say", () => {
+    const { container } = render(<StatCard label="Frozen" value="0" meta={false} />);
+    expect(container.querySelector("[data-slot=stat-card-meta]")).toBeNull();
   });
 });
