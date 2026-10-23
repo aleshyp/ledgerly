@@ -13,7 +13,9 @@ export function Checkbox({
     <CheckboxPrimitive.Root
       data-slot="checkbox"
       className={cn(
-        "peer size-4 shrink-0 rounded-sm border border-input bg-surface shadow-xs transition-colors outline-none",
+        "peer relative size-4 shrink-0 rounded-sm border border-input bg-surface shadow-xs transition-colors outline-none",
+        // A 32px invisible target on touch. Larger would overlap the next item in a stacked list.
+        "pointer-coarse:after:absolute pointer-coarse:after:-inset-2",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
         "data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground",

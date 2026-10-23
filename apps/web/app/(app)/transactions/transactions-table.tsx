@@ -164,13 +164,13 @@ export function TransactionsTable({ categories }: { categories: string[] }) {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="pl-4">Merchant</TableHead>
+              <TableHead className="pr-0 pl-4">Merchant</TableHead>
               <TableHead className="hidden md:table-cell">Category</TableHead>
               <TableHead className="hidden lg:table-cell">Account</TableHead>
               <TableHead className="hidden sm:table-cell">Date</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="hidden sm:table-cell">Status</TableHead>
               <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="w-12 pr-4">
+              <TableHead className="w-12 pr-4 pl-0">
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
@@ -200,7 +200,7 @@ export function TransactionsTable({ categories }: { categories: string[] }) {
             ) : (
               filtered.map((t) => (
                 <TableRow key={t.id}>
-                  <TableCell className="pl-4 whitespace-normal">
+                  <TableCell className="pr-0 pl-4 whitespace-normal">
                     <span className="inline-flex items-center gap-1.5 font-medium">
                       {t.merchant}
                       {t.receipt && (
@@ -229,15 +229,19 @@ export function TransactionsTable({ categories }: { categories: string[] }) {
                   <TableCell className="hidden text-foreground-muted sm:table-cell">
                     {formatDate(t.date)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <StatusBadge status={t.status} />
                   </TableCell>
                   <TableCell
                     className={`text-right font-medium tabular ${t.amount > 0 ? "text-positive" : ""}`}
                   >
                     {formatCurrency(t.amount, { signed: true })}
+                    {/* Status has its own column from `sm`; below that it sits under the amount. */}
+                    <div className="mt-1 sm:hidden">
+                      <StatusBadge status={t.status} />
+                    </div>
                   </TableCell>
-                  <TableCell className="pr-4">
+                  <TableCell className="pr-4 pl-0">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -278,17 +282,17 @@ export function TransactionsTable({ categories }: { categories: string[] }) {
               <TableRow className="hover:bg-transparent">
                 {/* One cell per column, hidden like the headers: a colSpan over hidden columns
                     makes phantom ones, which widens the table and misaligns the total. */}
-                <TableCell className="pl-4 text-foreground-muted">
+                <TableCell className="pr-0 pl-4 text-foreground-muted">
                   {filtered.length} transaction{filtered.length === 1 ? "" : "s"}
                 </TableCell>
                 <TableCell className="hidden md:table-cell" />
                 <TableCell className="hidden lg:table-cell" />
                 <TableCell className="hidden sm:table-cell" />
-                <TableCell />
+                <TableCell className="hidden sm:table-cell" />
                 <TableCell className={`text-right tabular ${net > 0 ? "text-positive" : ""}`}>
                   {formatCurrency(net, { signed: true })}
                 </TableCell>
-                <TableCell className="pr-4" />
+                <TableCell className="pr-4 pl-0" />
               </TableRow>
             </TableFooter>
           )}

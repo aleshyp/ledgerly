@@ -114,7 +114,8 @@ export function ToastClose({
       data-slot="toast-close"
       aria-label="Dismiss notification"
       className={cn(
-        "col-start-3 row-start-1 -mt-1 -mr-1 grid size-6 place-items-center rounded-sm text-foreground-muted",
+        "relative col-start-3 row-start-1 -mt-1 -mr-1 grid size-6 place-items-center rounded-sm text-foreground-muted",
+        "pointer-coarse:after:absolute pointer-coarse:after:-inset-2",
         "transition-colors hover:bg-accent hover:text-foreground",
         "focus-visible:outline-2 focus-visible:outline-ring",
         className,

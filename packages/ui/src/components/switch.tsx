@@ -9,7 +9,9 @@ export function Switch({ className, ...props }: React.ComponentProps<typeof Swit
     <SwitchPrimitive.Root
       data-slot="switch"
       className={cn(
-        "peer inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-colors outline-none",
+        "peer relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-colors outline-none",
+        // A bigger invisible target on touch; the switch itself keeps its size.
+        "pointer-coarse:after:absolute pointer-coarse:after:-inset-2",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "data-[state=checked]:bg-primary data-[state=unchecked]:bg-border-strong",
         "disabled:cursor-not-allowed disabled:opacity-50",
