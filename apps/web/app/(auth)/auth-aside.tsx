@@ -1,7 +1,10 @@
-/** The brand panel beside every auth form. Decorative, so it hides below `lg`. */
+/**
+ * The brand panel beside every auth form. Decorative, so it hides below `lg`. It's pinned to
+ * the viewport so the quote stays in view when a long form makes the page scroll.
+ */
 export function AuthAside() {
   return (
-    <div className="relative isolate hidden overflow-hidden bg-brand-panel lg:block">
+    <div className="sticky top-0 isolate hidden h-dvh overflow-hidden bg-brand-panel lg:block">
       {/* One brand-hue glow: a second, contrasting hue muddies on a saturated fill. */}
       <div
         aria-hidden="true"
