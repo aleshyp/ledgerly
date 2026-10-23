@@ -125,7 +125,7 @@ function AuditDemo() {
             <span className="font-medium">{entry.who}</span>{" "}
             <span className="text-foreground-muted">{entry.what}</span>
           </span>
-          <span className="shrink-0 text-xs text-foreground-subtle">{entry.when}</span>
+          <span className="shrink-0 text-xs text-foreground-muted">{entry.when}</span>
         </li>
       ))}
     </ul>
@@ -338,11 +338,9 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      {/* Always dark: `data-theme` remaps every semantic token inside, so stock components
-          render as they do in dark mode. The spotlights set it apart from a dark page. */}
+      {/* Follows the page theme. The grid and spotlights set it apart from the sections around it. */}
       <section
         id="features"
-        data-theme="dark"
         className="relative isolate scroll-mt-16 overflow-hidden border-y bg-background text-foreground"
       >
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-grid opacity-50" />
