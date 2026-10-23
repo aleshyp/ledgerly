@@ -1,4 +1,4 @@
-export const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
+export const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 975] as const;
 
 export type Step = (typeof steps)[number];
 export type Scale = Record<Step, string>;
@@ -17,11 +17,15 @@ const lightness: Record<Step, number> = {
   600: 0.55,
   700: 0.48,
   800: 0.4,
-  900: 0.29,
-  950: 0.205,
+  900: 0.28,
+  950: 0.22,
+  975: 0.18,
 };
 
-/** Chroma peaks in the mid-tones and tapers at both ends to stay inside the sRGB gamut. */
+/**
+ * Chroma peaks in the mid-tones and tapers at both ends to stay inside the sRGB gamut. The
+ * dark tail tapers hardest: warm hues at low lightness with much chroma turn brown.
+ */
 const chromaCurve: Record<Step, number> = {
   50: 0.06,
   100: 0.14,
@@ -32,8 +36,9 @@ const chromaCurve: Record<Step, number> = {
   600: 1,
   700: 0.9,
   800: 0.78,
-  900: 0.6,
-  950: 0.45,
+  900: 0.5,
+  950: 0.32,
+  975: 0.22,
 };
 
 const round = (value: number, precision: number) => Number(value.toFixed(precision));
@@ -44,16 +49,33 @@ export function oklch(l: number, c: number, h: number): string {
 
 export function scale({ hue, chroma }: { hue: number; chroma: number }): Scale {
   return Object.fromEntries(
-    steps.map((step) => [step, oklch(lightness[step], chroma * chromaCurve[step], hue)]),
+    steps.map((step) => [
+      step,
+      oklch(lightness[step], maxChroma(lightness[step], chroma * chromaCurve[step], hue), hue),
+    ]),
   ) as Scale;
 }
 
-/** Linear sRGB channels (0–1, clamped to gamut) of an `oklch(L C H)` string. */
-function linearSrgb(color: string): [number, number, number] {
-  const match = /^oklch\(([\d.]+) ([\d.]+) ([\d.]+)\)$/.exec(color);
-  if (!match) throw new Error(`Unsupported color format: ${color}`);
-  const [L, C, H] = match.slice(1).map(Number) as [number, number, number];
+/**
+ * The requested chroma, reduced until the color fits in sRGB. Browsers clip out-of-gamut
+ * OKLCH per channel, which shifts the hue (dark teal turns green, dark amber turns brown);
+ * lowering chroma keeps hue and lightness exact.
+ */
+function maxChroma(l: number, c: number, h: number): number {
+  const inGamut = (chroma: number) =>
+    unclampedLinearSrgb(l, chroma, h).every((v) => v >= -1e-4 && v <= 1 + 1e-4);
+  if (inGamut(c)) return c;
+  let [low, high] = [0, c];
+  for (let i = 0; i < 20; i++) {
+    const mid = (low + high) / 2;
+    if (inGamut(mid)) low = mid;
+    else high = mid;
+  }
+  // Rounding to 3 decimals in `oklch()` must not push it back out.
+  return Math.floor(low * 1000) / 1000;
+}
 
+function unclampedLinearSrgb(L: number, C: number, H: number): [number, number, number] {
   const hue = (H * Math.PI) / 180;
   const a = C * Math.cos(hue);
   const b = C * Math.sin(hue);
@@ -63,12 +85,20 @@ function linearSrgb(color: string): [number, number, number] {
   const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
   const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
 
-  const clamp = (v: number) => Math.min(1, Math.max(0, v));
-  const r = clamp(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s);
-  const g = clamp(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s);
-  const bl = clamp(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s);
+  return [
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+  ];
+}
 
-  return [r, g, bl];
+/** Linear sRGB channels (0–1, clamped to gamut) of an `oklch(L C H)` string. */
+function linearSrgb(color: string): [number, number, number] {
+  const match = /^oklch\(([\d.]+) ([\d.]+) ([\d.]+)\)$/.exec(color);
+  if (!match) throw new Error(`Unsupported color format: ${color}`);
+  const [L, C, H] = match.slice(1).map(Number) as [number, number, number];
+  const clamp = (v: number) => Math.min(1, Math.max(0, v));
+  return unclampedLinearSrgb(L, C, H).map(clamp) as [number, number, number];
 }
 
 /** WCAG 2.x relative luminance of an `oklch(L C H)` string. */

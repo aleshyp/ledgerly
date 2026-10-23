@@ -14,20 +14,23 @@ type ThemedColor = { light: ColorValue; dark: ColorValue; description: string };
 
 export const semanticColors = {
   // Surfaces
-  background: { light: "white", dark: "neutral.950", description: "Page background" },
-  surface: { light: "white", dark: "neutral.900", description: "Cards and panels" },
+  // Light pages are tinted so white surfaces lift off them. Dark surfaces sit one small step
+  // above the page, so cards read as layers rather than grey slabs.
+  background: { light: "neutral.100", dark: "neutral.975", description: "Page background" },
+  surface: { light: "white", dark: "neutral.950", description: "Cards and panels" },
   "surface-raised": {
     light: "white",
     dark: "neutral.900",
     description: "Popovers, menus and dialogs",
   },
-  muted: { light: "neutral.50", dark: "neutral.800", description: "Subtle fills, table headers" },
+  muted: { light: "neutral.50", dark: "neutral.900", description: "Subtle fills, table headers" },
   overlay: { light: "black/45", dark: "black/65", description: "Scrim behind modals" },
 
   // Text
   foreground: { light: "neutral.950", dark: "neutral.50", description: "Primary text" },
   "foreground-muted": {
-    light: "neutral.600",
+    // 700, not 600: 600 falls under 4.5:1 on the tinted light background.
+    light: "neutral.700",
     dark: "neutral.400",
     description: "Secondary text and labels",
   },
@@ -40,15 +43,21 @@ export const semanticColors = {
   negative: { light: "red.700", dark: "red.400", description: "Money out, losses, errors" },
 
   // Lines
-  border: { light: "neutral.200", dark: "neutral.800", description: "Default dividers" },
+  border: { light: "neutral.200", dark: "neutral.900", description: "Default dividers" },
   "border-strong": {
     light: "neutral.300",
-    dark: "neutral.700",
+    dark: "neutral.800",
     description: "Emphasised borders",
   },
-  input: { light: "neutral.300", dark: "neutral.700", description: "Form control borders" },
+  input: { light: "neutral.300", dark: "neutral.800", description: "Form control borders" },
   ring: { light: "brand.600", dark: "brand.400", description: "Focus indicator" },
+  // Tinted rather than gray, so light-mode shadows read as depth instead of dirt.
   shadow: { light: "neutral.950", dark: "black", description: "Base color for elevation" },
+  highlight: {
+    light: "white",
+    dark: "white/8",
+    description: "Lit top edge of raised surfaces (dark shadows don't show on dark pages)",
+  },
 
   // Actions
   primary: { light: "brand.700", dark: "brand.400", description: "Primary actions" },
@@ -58,10 +67,10 @@ export const semanticColors = {
     dark: "brand.950",
     description: "Content on primary",
   },
-  secondary: { light: "neutral.100", dark: "neutral.800", description: "Secondary actions" },
+  secondary: { light: "neutral.100", dark: "neutral.900", description: "Secondary actions" },
   "secondary-hover": {
     light: "neutral.200",
-    dark: "neutral.700",
+    dark: "neutral.800",
     description: "Secondary hover",
   },
   "secondary-foreground": {
@@ -77,18 +86,30 @@ export const semanticColors = {
   },
 
   // Brand
-  "brand-subtle": { light: "brand.50", dark: "brand.950", description: "Tinted brand fill" },
+  "brand-subtle": { light: "brand.50", dark: "brand.900", description: "Tinted brand fill" },
   "brand-subtle-foreground": {
     light: "brand.800",
     dark: "brand.200",
     description: "Content on brand-subtle",
   },
+  // Deep in both themes: `primary` goes bright in dark mode, which is right for a button
+  // but overwhelming across half a screen.
+  "brand-panel": {
+    light: "brand.800",
+    dark: "brand.900",
+    description: "Large brand showcase areas, like the auth aside",
+  },
+  "brand-panel-foreground": {
+    light: "white",
+    dark: "brand.50",
+    description: "Content on brand-panel",
+  },
 
-  // Data visualization. Fixed order, never cycled. Validated as a categorical pair
-  // (lightness band, chroma floor, CVD separation) against `surface` in both modes.
-  // Dark-mode chart-2 sits below 3:1 on surface, so charts must ship a legend + table view.
-  "chart-1": { light: "brand.600", dark: "brand.600", description: "Chart series 1" },
-  "chart-2": { light: "violet.600", dark: "violet.600", description: "Chart series 2" },
+  // Data visualization. Fixed order, never cycled. Teal and coral are complements, so the
+  // pair stays separable under common color-vision deficiencies. Both clear 3:1 on `surface`
+  // in both modes; charts still ship a legend + table view so color is never the only cue.
+  "chart-1": { light: "brand.600", dark: "brand.500", description: "Chart series 1" },
+  "chart-2": { light: "coral.600", dark: "coral.500", description: "Chart series 2" },
 
   // Decorative. Brand art marked aria-hidden only; never text, borders or controls.
   "logo-accent": {
@@ -102,14 +123,14 @@ export const semanticColors = {
     description: "Hero glow, first stop",
   },
   "glow-mid": {
-    light: "violet.200/40",
-    dark: "violet.800/20",
+    light: "coral.200/40",
+    dark: "blue.800/25",
     description: "Hero glow, middle stop",
   },
   "spotlight-1": { light: "brand.500", dark: "brand.500", description: "Feature panel highlight" },
   "spotlight-2": {
-    light: "violet.700",
-    dark: "violet.700",
+    light: "coral.700",
+    dark: "blue.600",
     description: "Feature panel highlight",
   },
 
@@ -117,7 +138,7 @@ export const semanticColors = {
   danger: { light: "red.700", dark: "red.700", description: "Destructive actions" },
   "danger-hover": { light: "red.800", dark: "red.800", description: "Destructive hover" },
   "danger-foreground": { light: "white", dark: "white", description: "Content on danger" },
-  "danger-subtle": { light: "red.50", dark: "red.950", description: "Error backgrounds" },
+  "danger-subtle": { light: "red.50", dark: "red.900", description: "Error backgrounds" },
   "danger-subtle-foreground": {
     light: "red.800",
     dark: "red.200",
@@ -125,7 +146,7 @@ export const semanticColors = {
   },
   success: { light: "green.700", dark: "green.500", description: "Success fills" },
   "success-foreground": { light: "white", dark: "green.950", description: "Content on success" },
-  "success-subtle": { light: "green.50", dark: "green.950", description: "Success backgrounds" },
+  "success-subtle": { light: "green.50", dark: "green.900", description: "Success backgrounds" },
   "success-subtle-foreground": {
     light: "green.800",
     dark: "green.200",
@@ -137,6 +158,8 @@ export const semanticColors = {
     dark: "amber.950",
     description: "Content on warning",
   },
+  // Amber turns brown at dark lightness, so its dark fill stays near-neutral and the border
+  // and text carry the color.
   "warning-subtle": { light: "amber.50", dark: "amber.950", description: "Warning backgrounds" },
   "warning-subtle-foreground": {
     light: "amber.800",
@@ -145,7 +168,7 @@ export const semanticColors = {
   },
   info: { light: "blue.700", dark: "blue.400", description: "Informational fills" },
   "info-foreground": { light: "white", dark: "blue.950", description: "Content on info" },
-  "info-subtle": { light: "blue.50", dark: "blue.950", description: "Info backgrounds" },
+  "info-subtle": { light: "blue.50", dark: "blue.900", description: "Info backgrounds" },
   "info-subtle-foreground": {
     light: "blue.800",
     dark: "blue.200",
@@ -175,6 +198,7 @@ export const contrastPairs: ReadonlyArray<[SemanticColor, SemanticColor, number]
   ["secondary-foreground", "secondary-hover", 4.5],
   ["accent-foreground", "accent", 4.5],
   ["brand-subtle-foreground", "brand-subtle", 4.5],
+  ["brand-panel-foreground", "brand-panel", 4.5],
   ["danger-foreground", "danger", 4.5],
   ["danger-foreground", "danger-hover", 4.5],
   ["danger-subtle-foreground", "danger-subtle", 4.5],
@@ -188,5 +212,8 @@ export const contrastPairs: ReadonlyArray<[SemanticColor, SemanticColor, number]
   ["success", "surface-raised", 3],
   ["negative", "surface-raised", 3],
   ["ring", "background", 3],
-  ["input", "background", 1.4],
+  ["chart-1", "surface", 3],
+  ["chart-2", "surface", 3],
+  // Inputs are filled with surface, so the border's edge is against surface, not the page.
+  ["input", "surface", 1.4],
 ];

@@ -11,9 +11,13 @@ export const base = {
 } as const;
 
 export const palette = {
-  neutral: scale({ hue: 262, chroma: 0.022 }),
-  brand: scale({ hue: 168, chroma: 0.14 }),
-  violet: scale({ hue: 292, chroma: 0.2 }),
+  // Cool slate, close to the brand hue so greys and teal read as one family, but bluer than
+  // it: at dark lightness a teal-leaning grey reads green and dingy.
+  neutral: scale({ hue: 228, chroma: 0.016 }),
+  // Blue-leaning teal, 45° from `green` so primary actions never read as "money in".
+  brand: scale({ hue: 195, chroma: 0.13 }),
+  // Warm complement to the brand for glows and the second chart series.
+  coral: scale({ hue: 40, chroma: 0.17 }),
   blue: scale({ hue: 255, chroma: 0.17 }),
   green: scale({ hue: 150, chroma: 0.16 }),
   amber: scale({ hue: 75, chroma: 0.16 }),
@@ -62,26 +66,50 @@ export const fontSize = {
   "6xl": { size: "3.75rem", lineHeight: "1.05", letterSpacing: "-0.035em" },
 } as const satisfies Record<string, FontSize>;
 
-type ShadowLayer = { y: number; blur: number; spread: number; opacity: number };
+export type ShadowLayer = {
+  y: number;
+  blur: number;
+  spread: number;
+  opacity: number;
+  /** Semantic token for the layer color. Defaults to `shadow`. */
+  color?: "shadow" | "highlight";
+  inset?: boolean;
+};
 
-/** Shadow color comes from the semantic `shadow` token so it can change per theme. */
+/** A 1px lit top edge. It carries elevation in dark mode, where drop shadows vanish. */
+const edge: ShadowLayer = {
+  y: 1,
+  blur: 0,
+  spread: 0,
+  opacity: 100,
+  color: "highlight",
+  inset: true,
+};
+
+/**
+ * Each raised step pairs a tight contact shadow with a wide, soft ambient one. The ambient
+ * layer's negative spread keeps it tucked under the element instead of haloing it.
+ * Shadow color comes from the semantic `shadow` token so it can change per theme.
+ */
 export const shadow = {
   xs: [{ y: 1, blur: 2, spread: 0, opacity: 6 }],
-  sm: [
-    { y: 1, blur: 3, spread: 0, opacity: 10 },
-    { y: 1, blur: 2, spread: -1, opacity: 10 },
-  ],
-  md: [
-    { y: 4, blur: 6, spread: -1, opacity: 10 },
-    { y: 2, blur: 4, spread: -2, opacity: 10 },
-  ],
+  sm: [{ y: 1, blur: 2, spread: 0, opacity: 5 }, { y: 2, blur: 8, spread: -2, opacity: 8 }, edge],
+  md: [{ y: 1, blur: 2, spread: 0, opacity: 5 }, { y: 6, blur: 16, spread: -4, opacity: 12 }, edge],
   lg: [
-    { y: 10, blur: 15, spread: -3, opacity: 10 },
-    { y: 4, blur: 6, spread: -4, opacity: 10 },
+    { y: 2, blur: 4, spread: -1, opacity: 6 },
+    { y: 12, blur: 28, spread: -6, opacity: 16 },
+    edge,
   ],
   xl: [
-    { y: 20, blur: 25, spread: -5, opacity: 12 },
-    { y: 8, blur: 10, spread: -6, opacity: 10 },
+    { y: 2, blur: 6, spread: -1, opacity: 6 },
+    { y: 24, blur: 48, spread: -12, opacity: 22 },
+    edge,
+  ],
+  /** Floating hero art. */
+  "2xl": [
+    { y: 4, blur: 8, spread: -2, opacity: 8 },
+    { y: 32, blur: 64, spread: -16, opacity: 30 },
+    edge,
   ],
 } as const satisfies Record<string, ShadowLayer[]>;
 

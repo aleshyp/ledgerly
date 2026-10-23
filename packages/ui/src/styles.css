@@ -9,11 +9,15 @@
 /* Let Tailwind see the classes used inside this package. */
 @source "./";
 
+/*
+ * `--theme()` inlines the token (`var(--ld-border)`) at each use. `var(--color-border)` would
+ * resolve once on :root, so a nested `data-theme` scope couldn't remap it.
+ */
 @layer base {
   *,
   ::before,
   ::after {
-    border-color: var(--color-border);
+    border-color: --theme(--color-border);
   }
 
   html {
@@ -35,7 +39,7 @@
   }
 
   :focus-visible {
-    outline-color: var(--color-ring);
+    outline-color: --theme(--color-ring);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -51,6 +55,18 @@
 
 @utility tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Decorative grid backdrop for marketing sections, drawn in the `border` color and faded out
+ * toward the edges. Put it on an `aria-hidden` layer behind the content.
+ */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, --theme(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, --theme(--color-border) 1px, transparent 1px);
+  background-size: calc(var(--spacing) * 12) calc(var(--spacing) * 12);
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
 }
 
 /*

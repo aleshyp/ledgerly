@@ -56,7 +56,7 @@ check them by hand.
   and money direction pairs color with a sign (+/−).
 - Contrast is enforced for token pairs in `contrast.test.ts`. If you put a token on a background
   that isn't listed there, add the pair.
-- Charts ship with a legend and a table or text alternative (`chart-2` is below 3:1 in dark mode).
+- Charts ship with a legend and a table or text alternative, so color is never the only cue.
 - Respect `prefers-reduced-motion`. The base layer zeroes transitions, but use `motion-safe:` for
   anything decorative or looping, and never autoplay motion longer than 5 seconds.
 - Announce async results (saved, failed, filtered to N results) with `role="status"` or
