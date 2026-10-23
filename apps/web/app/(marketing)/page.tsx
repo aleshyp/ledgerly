@@ -7,15 +7,18 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  cn,
   Container,
   Heading,
   Progress,
   Text,
 } from "@ledgerly/ui";
 import {
+  ArrowDownLeft,
   ArrowRight,
   BadgeCheck,
   ChartNoAxesCombined,
+  Check,
   CreditCard,
   Landmark,
   Receipt,
@@ -24,10 +27,128 @@ import {
   Workflow,
 } from "lucide-react";
 import { CountUpCurrency } from "@/components/count-up-currency";
-import { accounts, budgets, testimonials, transactions } from "@/lib/data";
+import { accounts, budgets, cashFlow, testimonials, transactions } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/format";
 
+function ReconcileDemo() {
+  return (
+    <ul className="grid divide-y rounded-lg border bg-background">
+      {transactions.slice(4, 7).map((t) => (
+        <li key={t.id} className="flex items-center justify-between gap-4 px-3 py-2.5 text-sm">
+          <span className="truncate font-medium">{t.merchant}</span>
+          <Badge variant="success">
+            <Check /> Matched
+          </Badge>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const peakFlow = Math.max(...cashFlow.map((m) => m.moneyIn));
+
+/** Decorative bars; the tile's copy carries the meaning, so the chart is hidden from AT. */
+function CashFlowDemo() {
+  return (
+    <div className="grid gap-3">
+      <div aria-hidden="true" className="flex h-40 items-end gap-2">
+        {cashFlow.map((m) => (
+          <div key={m.month} className="flex h-full flex-1 items-end gap-1">
+            <div
+              className="flex-1 rounded-t-sm bg-chart-1"
+              style={{ height: `${(m.moneyIn / peakFlow) * 100}%` }}
+            />
+            <div
+              className="flex-1 rounded-t-sm bg-chart-2"
+              style={{ height: `${(m.moneyOut / peakFlow) * 100}%` }}
+            />
+          </div>
+        ))}
+      </div>
+      <div aria-hidden="true" className="flex gap-4 text-xs text-foreground-muted">
+        <span className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full bg-chart-1" /> Money in
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full bg-chart-2" /> Money out
+        </span>
+      </div>
+    </div>
+  );
+}
+
+const invoices = [
+  { id: "INV-1042", client: "Tidewater Cycles", amount: 12480, paid: true },
+  { id: "INV-1043", client: "Atlas Studio", amount: 3250, paid: false },
+];
+
+function InvoiceDemo() {
+  return (
+    <ul className="grid gap-2">
+      {invoices.map((inv) => (
+        <li key={inv.id} className="grid gap-1 rounded-lg border bg-background px-3 py-2.5 text-sm">
+          <span className="flex items-center justify-between gap-2">
+            <span className="truncate font-medium">{inv.client}</span>
+            <Badge variant={inv.paid ? "success" : "warning"}>
+              {inv.paid ? "Paid" : "Reminder sent"}
+            </Badge>
+          </span>
+          <span className="text-xs text-foreground-muted tabular">
+            {inv.id} · {formatCurrency(inv.amount)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const auditLog = [
+  {
+    id: "a1",
+    who: "Avery Chen",
+    what: `approved a ${formatCurrency(4200)} payout`,
+    when: "2m ago",
+  },
+  { id: "a2", who: "Jordan Patel", what: "raised the marketing card limit", when: "1h ago" },
+  { id: "a3", who: "Sam Ortiz", what: "exported the September ledger", when: "Yesterday" },
+];
+
+function AuditDemo() {
+  return (
+    <ul className="grid gap-2">
+      {auditLog.map((entry) => (
+        <li
+          key={entry.id}
+          className="flex items-baseline justify-between gap-4 rounded-lg border bg-background px-3 py-2 text-sm"
+        >
+          <span className="text-pretty">
+            <span className="font-medium">{entry.who}</span>{" "}
+            <span className="text-foreground-muted">{entry.what}</span>
+          </span>
+          <span className="shrink-0 text-xs text-foreground-subtle">{entry.when}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// Bento layout at lg: reconciliation is wide, cash flow is tall, controls closes the grid.
+// Spans are spelled out so Tailwind can see each class.
 const features = [
+  {
+    icon: Workflow,
+    title: "Automated reconciliation",
+    body: "Every transaction is matched, categorized and receipt-checked before your accountant ever sees it.",
+    span: "lg:col-span-2",
+    demo: <ReconcileDemo />,
+  },
+  {
+    icon: ChartNoAxesCombined,
+    title: "Live cash flow",
+    body: "See runway, burn and upcoming bills update in real time instead of waiting for month-end.",
+    span: "lg:row-span-2",
+    demo: <CashFlowDemo />,
+  },
   {
     icon: Landmark,
     title: "Business accounts",
@@ -39,24 +160,17 @@ const features = [
     body: "Issue virtual and physical cards with per-merchant limits that enforce your budgets automatically.",
   },
   {
-    icon: Workflow,
-    title: "Automated reconciliation",
-    body: "Every transaction is matched, categorized and receipt-checked before your accountant ever sees it.",
-  },
-  {
-    icon: ChartNoAxesCombined,
-    title: "Live cash flow",
-    body: "See runway, burn and upcoming bills update in real time instead of waiting for month-end.",
-  },
-  {
     icon: Receipt,
     title: "Invoicing that gets paid",
     body: "Send branded invoices with card and ACH payments built in. Reminders go out on their own.",
+    demo: <InvoiceDemo />,
   },
   {
     icon: ShieldCheck,
     title: "Controls & audit trail",
     body: "Approval chains, custom roles and an immutable audit log keep every dollar accountable.",
+    span: "lg:col-span-2",
+    demo: <AuditDemo />,
   },
 ];
 
@@ -80,7 +194,7 @@ function ProductPreview() {
         aria-hidden="true"
         className="absolute -inset-x-10 -inset-y-8 -z-10 rounded-3xl bg-linear-to-br from-glow-start via-glow-mid to-transparent blur-2xl"
       />
-      <Card className="gap-5 shadow-xl">
+      <Card className="gap-5 shadow-2xl">
         <CardHeader>
           <CardDescription>
             {operating.name} ···· {operating.mask}
@@ -128,6 +242,45 @@ function ProductPreview() {
           </ul>
         </CardContent>
       </Card>
+
+      {/* Floating layers. Illustrative only, and hidden below sm where they'd cover the card. */}
+      <div
+        aria-hidden="true"
+        className="absolute -top-7 -right-4 hidden stagger-10 motion-safe:animate-rise-in sm:block lg:-right-8"
+      >
+        <Card className="w-88 flex-row items-center gap-3 px-3 py-3 shadow-xl">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-success-subtle text-success-subtle-foreground">
+            <ArrowDownLeft className="size-4" />
+          </span>
+          <span className="grid min-w-0 flex-1">
+            <span className="text-sm font-medium">Payment received</span>
+            <span className="truncate text-xs text-foreground-muted">
+              Tidewater Cycles · INV-1042
+            </span>
+          </span>
+          <span className="text-sm font-medium text-positive tabular">
+            {formatCurrency(12480, { signed: true })}
+          </span>
+        </Card>
+      </div>
+      <div
+        aria-hidden="true"
+        className="absolute -bottom-24 -left-6 hidden stagger-11 motion-safe:animate-rise-in sm:block lg:-left-12"
+      >
+        <div className="relative isolate grid w-60 gap-6 overflow-hidden rounded-2xl bg-primary p-5 text-primary-foreground shadow-2xl">
+          <div className="absolute -top-12 -right-12 -z-10 size-40 rounded-full bg-spotlight-2 opacity-30 blur-2xl" />
+          <div className="flex items-center justify-between text-sm font-medium">
+            <span>Marketing card</span>
+            <CreditCard className="size-5" />
+          </div>
+          <div className="grid gap-1">
+            <span className="text-lg tracking-widest tabular">•••• 9034</span>
+            <span className="text-xs tabular">
+              {formatCurrency(1240)} of {formatCurrency(2000)} limit
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -136,7 +289,8 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="overflow-hidden">
+      <section className="relative isolate overflow-hidden">
+        <div aria-hidden="true" className="absolute inset-0 -z-20 bg-grid" />
         <Container className="grid items-center gap-16 py-20 lg:grid-cols-[1.1fr_1fr] lg:py-28">
           <div className="grid justify-items-start gap-6">
             <Badge variant="brand" className="stagger-0 motion-safe:animate-rise-in">
@@ -173,7 +327,7 @@ export default function HomePage() {
       </section>
 
       {/* Logos */}
-      <section aria-label="Trusted by" className="border-y bg-muted/50">
+      <section aria-label="Trusted by" className="border-y bg-surface">
         <Container className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 py-8">
           {logos.map((logo) => (
             <span key={logo} className="text-lg font-semibold tracking-tight text-foreground-muted">
@@ -184,7 +338,22 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section id="features" className="scroll-mt-16">
+      {/* Always dark: `data-theme` remaps every semantic token inside, so stock components
+          render as they do in dark mode. The spotlights set it apart from a dark page. */}
+      <section
+        id="features"
+        data-theme="dark"
+        className="relative isolate scroll-mt-16 overflow-hidden border-y bg-background text-foreground"
+      >
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-grid opacity-50" />
+        <div
+          aria-hidden="true"
+          className="absolute -top-48 left-1/4 -z-10 size-96 rounded-full bg-spotlight-1 opacity-25 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute right-0 -bottom-48 -z-10 size-96 rounded-full bg-spotlight-2 opacity-25 blur-3xl"
+        />
         <Container className="grid gap-12 py-24">
           <div className="mx-auto grid max-w-2xl reveal gap-4 text-center">
             <Text size="sm" weight="semibold" className="text-primary">
@@ -198,18 +367,26 @@ export default function HomePage() {
             </Text>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map(({ icon: Icon, title, body }) => (
-              <Card key={title} className="reveal gap-4">
+            {features.map(({ icon: Icon, title, body, span, demo }) => (
+              <Card
+                key={title}
+                className={cn("relative isolate reveal gap-4 overflow-hidden", span)}
+              >
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 -z-10 h-32 bg-linear-to-b from-glow-start to-transparent"
+                />
                 <CardHeader className="gap-4">
                   <span className="grid size-10 place-items-center rounded-lg bg-brand-subtle text-brand-subtle-foreground">
                     <Icon className="size-5" />
                   </span>
                   <CardTitle>{title}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <Text size="sm" tone="muted">
+                <CardContent className="grid flex-1 content-between gap-6">
+                  <Text size="sm" tone="muted" className="max-w-prose">
                     {body}
                   </Text>
+                  {demo}
                 </CardContent>
               </Card>
             ))}
@@ -262,7 +439,7 @@ export default function HomePage() {
         <Container className="pb-24">
           {/* Surface, not brand-subtle: at panel size the dark-mode tint reads as a muddy hole,
               and neutral text and buttons clash with it. The glow echoes the hero instead. */}
-          <div className="relative isolate grid reveal justify-items-center gap-6 overflow-hidden rounded-3xl border bg-surface px-6 py-16 text-center">
+          <div className="relative isolate grid reveal justify-items-center gap-6 overflow-hidden rounded-3xl border bg-surface px-6 py-16 text-center shadow-lg">
             <div
               aria-hidden="true"
               className="absolute inset-x-0 top-0 -z-10 h-full bg-linear-to-b from-glow-start via-glow-mid to-transparent"

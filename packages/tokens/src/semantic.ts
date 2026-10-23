@@ -14,7 +14,8 @@ type ThemedColor = { light: ColorValue; dark: ColorValue; description: string };
 
 export const semanticColors = {
   // Surfaces
-  background: { light: "white", dark: "neutral.950", description: "Page background" },
+  // Light pages are tinted so white surfaces lift off them; dark mode already steps up.
+  background: { light: "neutral.100", dark: "neutral.950", description: "Page background" },
   surface: { light: "white", dark: "neutral.900", description: "Cards and panels" },
   "surface-raised": {
     light: "white",
@@ -27,7 +28,8 @@ export const semanticColors = {
   // Text
   foreground: { light: "neutral.950", dark: "neutral.50", description: "Primary text" },
   "foreground-muted": {
-    light: "neutral.600",
+    // 700, not 600: 600 falls under 4.5:1 on the tinted light background.
+    light: "neutral.700",
     dark: "neutral.400",
     description: "Secondary text and labels",
   },
@@ -48,7 +50,13 @@ export const semanticColors = {
   },
   input: { light: "neutral.300", dark: "neutral.700", description: "Form control borders" },
   ring: { light: "brand.600", dark: "brand.400", description: "Focus indicator" },
-  shadow: { light: "neutral.950", dark: "black", description: "Base color for elevation" },
+  // Navy rather than gray, so light-mode shadows read as depth instead of dirt.
+  shadow: { light: "blue.950", dark: "black", description: "Base color for elevation" },
+  highlight: {
+    light: "white",
+    dark: "white/8",
+    description: "Lit top edge of raised surfaces (dark shadows don't show on dark pages)",
+  },
 
   // Actions
   primary: { light: "brand.700", dark: "brand.400", description: "Primary actions" },
@@ -188,5 +196,6 @@ export const contrastPairs: ReadonlyArray<[SemanticColor, SemanticColor, number]
   ["success", "surface-raised", 3],
   ["negative", "surface-raised", 3],
   ["ring", "background", 3],
-  ["input", "background", 1.4],
+  // Inputs are filled with surface, so the border's edge is against surface, not the page.
+  ["input", "surface", 1.4],
 ];

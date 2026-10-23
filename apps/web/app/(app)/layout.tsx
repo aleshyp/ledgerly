@@ -10,7 +10,7 @@ import { currentUser, transactions } from "@/lib/data";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <TransactionsProvider initial={transactions}>
-      <div className="min-h-dvh bg-muted/40 lg:grid lg:grid-cols-[16rem_1fr]">
+      <div className="min-h-dvh lg:grid lg:grid-cols-[16rem_1fr]">
         <aside className="sticky top-0 hidden h-dvh flex-col gap-8 border-r bg-surface px-4 py-5 lg:flex">
           <Link href="/" aria-label="Ledgerly home" className="px-2">
             <Logo />
