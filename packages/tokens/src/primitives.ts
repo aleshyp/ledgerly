@@ -11,9 +11,13 @@ export const base = {
 } as const;
 
 export const palette = {
-  neutral: scale({ hue: 262, chroma: 0.022 }),
-  brand: scale({ hue: 168, chroma: 0.14 }),
-  violet: scale({ hue: 292, chroma: 0.2 }),
+  // Cool slate, close to the brand hue so greys and teal read as one family, but bluer than
+  // it: at dark lightness a teal-leaning grey reads green and dingy.
+  neutral: scale({ hue: 228, chroma: 0.016 }),
+  // Blue-leaning teal, 45° from `green` so primary actions never read as "money in".
+  brand: scale({ hue: 195, chroma: 0.13 }),
+  // Warm complement to the brand for glows and the second chart series.
+  coral: scale({ hue: 40, chroma: 0.17 }),
   blue: scale({ hue: 255, chroma: 0.17 }),
   green: scale({ hue: 150, chroma: 0.16 }),
   amber: scale({ hue: 75, chroma: 0.16 }),

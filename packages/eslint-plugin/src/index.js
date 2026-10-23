@@ -7,7 +7,7 @@
  * trip them.
  * ------------------------------------------------------------------------- */
 
-const PALETTES = "neutral|brand|violet|blue|green|amber|red";
+const PALETTES = "neutral|brand|coral|blue|green|amber|red";
 const COLOR_UTILITIES =
   "bg|text|border(?:-[trblxyse])?|ring|ring-offset|outline|fill|stroke|from|via|to|divide|decoration|caret|accent|placeholder|shadow|inset-shadow";
 

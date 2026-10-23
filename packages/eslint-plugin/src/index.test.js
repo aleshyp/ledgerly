@@ -22,7 +22,7 @@ tester.run("no-primitive-colors", rules["no-primitive-colors"], {
   invalid: [
     { code: `<div className="bg-brand-500" />`, errors: [{ messageId: "primitive" }] },
     { code: `cn("p-4 dark:hover:text-red-700/50")`, errors: [{ messageId: "primitive" }] },
-    { code: "const c = `stroke-violet-300 ${x}`", errors: [{ messageId: "primitive" }] },
+    { code: "const c = `stroke-coral-300 ${x}`", errors: [{ messageId: "primitive" }] },
     { code: `const s = "var(--color-brand-500)"`, errors: [{ messageId: "primitive" }] },
   ],
 });
