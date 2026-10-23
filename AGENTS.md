@@ -39,6 +39,7 @@ matching files; other agents should read the relevant file before editing:
 | `.claude/rules/accessibility.md`          | WCAG 2.2 AA requirements                        |
 | `.claude/rules/typography-and-content.md` | Type, numbers and money, punctuation, voice     |
 | `.claude/rules/ux-patterns.md`            | States, forms, actions, feedback, layout        |
+| `.claude/rules/responsive.md`             | Mobile-first layout, reflow, touch, viewports   |
 | `.claude/rules/react-typescript.md`       | React 19 idioms, TypeScript, file naming        |
 | `.claude/rules/nextjs.md`                 | Next.js 16 server/client, data, metadata        |
 | `.claude/rules/testing.md`                | Tests, stories, contrast pairs, lint rule tests |

@@ -200,8 +200,8 @@ export function TransactionsTable({ categories }: { categories: string[] }) {
             ) : (
               filtered.map((t) => (
                 <TableRow key={t.id}>
-                  <TableCell className="pl-4 font-medium">
-                    <span className="inline-flex items-center gap-1.5">
+                  <TableCell className="pl-4 whitespace-normal">
+                    <span className="inline-flex items-center gap-1.5 font-medium">
                       {t.merchant}
                       {t.receipt && (
                         <>
@@ -213,6 +213,12 @@ export function TransactionsTable({ categories }: { categories: string[] }) {
                         </>
                       )}
                     </span>
+                    {/* The columns that hide on small screens, folded in under the merchant. */}
+                    <div className="text-xs text-foreground-muted lg:hidden">
+                      <span className="md:hidden">{t.category} · </span>
+                      {t.account}
+                      <span className="sm:hidden"> · {formatDate(t.date)}</span>
+                    </div>
                   </TableCell>
                   <TableCell className="hidden text-foreground-muted md:table-cell">
                     {t.category}
@@ -270,9 +276,15 @@ export function TransactionsTable({ categories }: { categories: string[] }) {
           {filtered.length > 0 && (
             <TableFooter>
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={5} className="pl-4 text-foreground-muted">
+                {/* One cell per column, hidden like the headers: a colSpan over hidden columns
+                    makes phantom ones, which widens the table and misaligns the total. */}
+                <TableCell className="pl-4 text-foreground-muted">
                   {filtered.length} transaction{filtered.length === 1 ? "" : "s"}
                 </TableCell>
+                <TableCell className="hidden md:table-cell" />
+                <TableCell className="hidden lg:table-cell" />
+                <TableCell className="hidden sm:table-cell" />
+                <TableCell />
                 <TableCell className={`text-right tabular ${net > 0 ? "text-positive" : ""}`}>
                   {formatCurrency(net, { signed: true })}
                 </TableCell>

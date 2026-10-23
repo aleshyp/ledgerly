@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@ledgerly/ui";
@@ -16,9 +17,24 @@ const items = [
 export function AppNav({ orientation = "vertical" }: { orientation?: "vertical" | "horizontal" }) {
   const pathname = usePathname();
   const vertical = orientation === "vertical";
+  const navRef = useRef<HTMLElement>(null);
+
+  // The horizontal row scrolls on phones, so bring the current page's item into view.
+  useEffect(() => {
+    const nav = navRef.current;
+    const active = nav?.querySelector<HTMLElement>("[aria-current=page]");
+    if (vertical || !nav || !active) return;
+    const navBox = nav.getBoundingClientRect();
+    const activeBox = active.getBoundingClientRect();
+    nav.scrollLeft += activeBox.left - navBox.left - (navBox.width - activeBox.width) / 2;
+  }, [pathname, vertical]);
 
   return (
-    <nav aria-label="App" className={cn("flex gap-1", vertical ? "flex-col" : "overflow-x-auto")}>
+    <nav
+      ref={navRef}
+      aria-label="App"
+      className={cn("flex gap-1", vertical ? "flex-col" : "scroll-fade-x overflow-x-auto")}
+    >
       {items.map(({ href, label, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (
